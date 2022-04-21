@@ -30,19 +30,7 @@ export default {
     }
   },
   setup() {},
-  created() {
-    // const currentUrl = window.location.pathname
-    // if (
-    //   currentUrl === '/detail' ||
-    //   currentUrl === '/login'
-    // ) {
-    //   this.show = false
-    //   console.log('this.show = false')
-    // } else {
-    //   this.show = true
-    //   console.log('this.show = true')
-    // }
-  },
+  created() {},
   mounted() {},
   unmounted() {},
   methods: {
@@ -73,7 +61,6 @@ export default {
   height: 60px;
 }
 #nav a {
-  /* font-weight: bold; */
   color: #2c3e50;
   text-decoration: none;
   cursor: pointer;
@@ -98,20 +85,15 @@ export default {
   padding-top: 3px;
   align-self: center;
   text-align: center;
-  /* width: 30px; */
   font-size: 12px;
 }
 
 .tab {
   padding-top: 10px;
   width: 25%;
-  /* height: 50px; */
-  /* background-color: #ebebeb; */
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  /* justify-content: center; */
-  /* align-content: center; */
 }
 .tab:hover {
   background-color: var(--color-light-white);

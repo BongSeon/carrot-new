@@ -13,19 +13,13 @@
 </template>
 
 <script>
-// import SlotHeader from '@/components/SlotHeader.vue'
-
 export default {
-  // components: { SlotHeader },
+  components: {},
   data() {
     return {}
   },
   setup() {},
-  created() {
-    // if (!this.user) {
-    //   this.$router.push('login')
-    // }
-  },
+  created() {},
   mounted() {},
   unmounted() {},
   methods: {

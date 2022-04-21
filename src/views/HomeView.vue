@@ -48,7 +48,6 @@
 
 <script>
 import ProductCard from '@/components/ProductCard.vue'
-// import SlotHeader from "@/components/SlotHeader.vue";
 import PlaceDropdown from '@/components/PlaceDropdown.vue'
 import Detail from '@/views/Detail.vue'
 import gsap from 'gsap'
@@ -56,20 +55,13 @@ import gsap from 'gsap'
 export default {
   name: 'Home',
   components: {
-    // SlotHeader,
     ProductCard,
     PlaceDropdown,
     Detail
   },
-  props: {
-    // show: {
-    //   type: Boolean,
-    //   default: false,
-    // },
-  },
+  props: {},
   data() {
     return {
-      // showDetail: false,
       products: [
         {
           id: '2323',
@@ -114,8 +106,6 @@ export default {
       console.log(btn + ' clicked')
     },
     showDetail(id) {
-      // this.showDetail = !this.showDetail
-
       console.log(id)
       gsap.fromTo(
         '.detail',

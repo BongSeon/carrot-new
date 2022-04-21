@@ -26,11 +26,7 @@ export default {
       }
     }
   },
-  methods: {
-    // getLocalImgUrl(filename) {
-    //   return require(`@/assets/img/thumbnails/${filename}`)
-    // }
-  }
+  methods: {}
 }
 </script>
 
@@ -42,7 +38,6 @@ export default {
   height: 130px;
   position: relative;
   cursor: pointer;
-  /* background-color: beige; */
 }
 .card h2 {
   margin: 0;
@@ -53,7 +48,6 @@ export default {
 }
 .thumbnail {
   height: 100%;
-  /* padding: 2%; */
 }
 .thumbnail img {
   height: 100%;
@@ -79,7 +73,6 @@ export default {
   bottom: 0;
   font-size: 14px;
   color: grey;
-  /* font-weight: */
 }
 .info__counts i {
   padding: 0 0.1rem;

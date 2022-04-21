@@ -22,4 +22,40 @@ export default {
   methods: {}
 }
 </script>
-<style></style>
+<style>
+.header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  height: 48px;
+  display: flex;
+  padding-left: 10px;
+  padding-right: 6px;
+  justify-content: space-between;
+  align-items: center;
+}
+.header button {
+  background-color: transparent;
+}
+.header__title {
+  font-size: 20px;
+  font-weight: bold;
+}
+.header__buttons {
+  width: 200px;
+  display: flex;
+  justify-content: flex-end;
+}
+.header__buttons button {
+  border: 0;
+  cursor: pointer;
+  height: 26px;
+  padding: 0 6px;
+  margin: 0;
+  cursor: pointer;
+}
+.header__buttons-icon {
+  width: 26px;
+}
+.header__buttons-icon:hover {
+  transform: scale(1.08);
+}
+</style>

@@ -3,7 +3,6 @@
     <template v-slot:title>채팅 목록</template>
   </slot-header>
   <main class="chat">
-    <!-- <img class="my-avatar" src="@/assets/my-avatar.jpg" alt="" /> -->
     <div>
       <h1>채팅 목록</h1>
       <p>채팅 목록을 불러오는 중입니다..</p>

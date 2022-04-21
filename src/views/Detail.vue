@@ -7,21 +7,12 @@
         </button>
       </template>
     </slot-header>
-    <!-- <carousel /> -->
+    <!-- carousel  -->
     <Carousel />
-
-    <!-- <header id="header" class="text-white">
-      <div class="header__title">
-        <button @click="$emit('back')">
-          <i class="fas fa-arrow-left"></i>reg
-        </button>
-      </div>
-    </header> -->
   </div>
 </template>
 <script>
 import Carousel from '@/components/Carousel.vue'
-// import CarouselSlick from "@/components/CarouselSlick.vue";
 export default {
   components: { Carousel },
   data() {
