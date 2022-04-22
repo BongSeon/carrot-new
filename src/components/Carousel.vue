@@ -63,7 +63,8 @@ export default {
           url: '/img/slide-3.svg'
         }
       ],
-      cnt: 1
+      cnt: 1,
+      inited: false
     }
   },
   computed: {
@@ -74,11 +75,19 @@ export default {
   setup() {},
   created() {},
   mounted() {
-    this.init()
+    // this.inited = false
+    // this.init()
   },
-  unmounted() {},
+  unmounted() {
+    $('#slider-div').slick('unslick')
+    // this.inited = false
+  },
   methods: {
     async open(id) {
+      if (!this.inited) {
+        this.inited = true
+        this.init()
+      }
       // console.log(id)
       this.images = await this.$loadImages('images', id, 'num')
 
