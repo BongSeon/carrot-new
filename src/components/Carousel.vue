@@ -2,82 +2,144 @@
   <div class="carousel-wrap">
     <div class="carousel">
       <div id="slider-div">
-        <div
-          v-for="img in imgs"
+        <!-- <div
+          class="carousel-item"
+          :style="{
+            backgroundImage:
+              'url(' +
+              'https://blog.kakaocdn.net/dn/F585W/btrp0JM1R42/Vh9vFKutQpiFsblY7RCzMK/img.png' +
+              ')'
+          }"
+        ></div> -->
+        <div class="carousel-item bg-gray">
+          <div class="loader">Loading...</div>
+        </div>
+        <!-- <div
+          v-for="img in images"
           :key="img.id"
           class="carousel-item"
           :style="{
             backgroundImage: 'url(' + img.url + ')'
           }"
-        ></div>
+        ></div> -->
       </div>
     </div>
   </div>
+  <!-- <button
+    style="margin-top: 100px"
+    class="btn"
+    @click="open('MDNxen2SHlKbyxLGJefN')"
+  >
+    test
+  </button>
+  <button
+    style="margin-top: 100px"
+    class="btn"
+    @click="open('iwyiISZl5UbKBpHpEJIG')"
+  >
+    test
+  </button>
+  <button style="margin-top: 100px" class="btn" @click="close">close</button> -->
 </template>
 <script>
+import GetDocs from '@/mixins/getDocs.js'
 export default {
+  mixins: [GetDocs],
   components: {},
+  props: {},
   data() {
     return {
-      active: 0,
-      imgs: [
+      images: [
         {
-          index: 0,
-          url: 'http://cdn.ggilbo.com/news/photo/202108/863335_692949_158.png'
+          num: 1,
+          url: '/img/slide-1.svg'
         },
         {
-          index: 1,
-          url: 'https://image.bada.io/files//upload/2021/08/13/4830497_6116631958615.webp'
+          num: 2,
+          url: '/img/slide-2.svg'
         },
         {
-          index: 2,
-          url: 'https://cdn.clien.net/web/api/file/F01/11767462/b1d2ed28d85ba1.jpg?w=780&h=30000'
+          num: 3,
+          url: '/img/slide-3.svg'
         }
-      ]
+      ],
+      cnt: 1
     }
+  },
+  computed: {
+    // computedImgs() {
+    //   return this.images
+    // }
   },
   setup() {},
   created() {},
   mounted() {
-    $(function () {
-      $('#slider-div').slick({
-        slide: 'div', //슬라이드 되어야 할 태그 ex) div, li
-        infinite: false, //무한 반복 옵션
-        slidesToShow: 1, // 한 화면에 보여질 컨텐츠 개수
-        slidesToScroll: 1, //스크롤 한번에 움직일 컨텐츠 개수
-        speed: 300, // 다음 버튼 누르고 다음 화면 뜨는데까지 걸리는 시간(ms)
-        arrows: true, // 옆으로 이동하는 화살표 표시 여부
-        dots: true, // 스크롤바 아래 점으로 페이지네이션 여부
-        autoplay: false, // 자동 스크롤 사용 여부
-        autoplaySpeed: 10000, // 자동 스크롤 시 다음으로 넘어가는데 걸리는 시간 (ms)
-        pauseOnHover: true, // 슬라이드 이동	시 마우스 호버하면 슬라이더 멈추게 설정
-        vertical: false, // 세로 방향 슬라이드 옵션
-        prevArrow: "<button type='button' class='slick-prev'>Previous</button>", // 이전 화살표 모양 설정
-        nextArrow: "<button type='button' class='slick-next'>Next</button>", // 다음 화살표 모양 설정
-        dotsClass: 'slick-dots', //아래 나오는 페이지네이션(점) css class 지정
-        draggable: true //드래그 가능 여부
-      })
-    })
+    this.init()
   },
   unmounted() {},
   methods: {
-    change(index) {
-      this.active = index
+    async open(id) {
+      // console.log(id)
+      this.images = await this.$loadImages('images', id, 'num')
+
+      await this.images.forEach((img) => {
+        const h =
+          '<div class="carousel-item" style="background-image: url(' +
+          img.url +
+          ')"></div>'
+        console.log(h)
+        this.cnt++
+
+        $('#slider-div').slick('slickAdd', h)
+      })
+      await console.log(this.cnt)
+
+      $('#slider-div').slick('slickRemove', true)
+      this.cnt--
     },
-    prev(n) {
-      if (this.active > 0) {
-        this.active -= 1
-      }
+    init() {
+      $(function () {
+        $('#slider-div').slick({
+          slide: 'div', //슬라이드 되어야 할 태그 ex) div, li
+          infinite: false, //무한 반복 옵션
+          slidesToShow: 1, // 한 화면에 보여질 컨텐츠 개수
+          slidesToScroll: 1, //스크롤 한번에 움직일 컨텐츠 개수
+          speed: 300, // 다음 버튼 누르고 다음 화면 뜨는데까지 걸리는 시간(ms)
+          arrows: true, // 옆으로 이동하는 화살표 표시 여부
+          dots: true, // 스크롤바 아래 점으로 페이지네이션 여부
+          autoplay: false, // 자동 스크롤 사용 여부
+          autoplaySpeed: 10000, // 자동 스크롤 시 다음으로 넘어가는데 걸리는 시간 (ms)
+          pauseOnHover: true, // 슬라이드 이동	시 마우스 호버하면 슬라이더 멈추게 설정
+          vertical: false, // 세로 방향 슬라이드 옵션
+          prevArrow:
+            "<button type='button' class='slick-prev'>Previous</button>", // 이전 화살표 모양 설정
+          nextArrow: "<button type='button' class='slick-next'>Next</button>", // 다음 화살표 모양 설정
+          dotsClass: 'slick-dots', //아래 나오는 페이지네이션(점) css class 지정
+          draggable: true //드래그 가능 여부
+        })
+      })
     },
-    next(n) {
-      if (this.active < this.imgs.length - 1) {
-        this.active += 1
+    close() {
+      setTimeout(() => {
+        this.clear()
+        $('#slider-div').slick(
+          'slickAdd',
+          '<div class="carousel-item bg-gray"><div class="loader">Loading...</div></div>'
+        )
+        this.cnt++
+      }, 300)
+    },
+    clear() {
+      for (let i = 0; i < this.cnt; i++) {
+        console.log('remove')
+        $('#slider-div').slick('slickRemove', false)
       }
+      this.cnt = 0
     }
   }
 }
 </script>
-<style scoped>
+<style>
 /* --- carousel --- */
 .carousel-wrap {
   background-color: white;

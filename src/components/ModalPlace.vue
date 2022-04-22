@@ -1,5 +1,4 @@
 <template>
-  <!--  -->
   <div
     class="modal"
     :class="{ show: show, closing: closing }"
@@ -53,7 +52,7 @@ export default {
   }
 }
 </script>
-<style scoped>
+<style>
 .modal.show {
   display: block;
 }
@@ -63,9 +62,9 @@ export default {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1055;
+  z-index: 3;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   overflow-x: hidden;
   overflow-y: auto;
   outline: 0;

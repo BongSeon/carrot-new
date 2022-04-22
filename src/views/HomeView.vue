@@ -33,64 +33,49 @@
       </slot-header>
       <main class="main">
         <product-card
-          v-for="product in products"
-          :key="product.id"
-          @click="showDetail(product.id)"
-          :product="product"
+          v-for="(post, index) in posts"
+          :key="post.id"
+          @click="clickPostCard(post.id, index)"
+          :product="post"
         />
       </main>
     </div>
 
     <!-- 상세 페이지 -->
-    <detail @back="closeDetail" />
+    <detail-drawer ref="detail" :product="product" />
   </div>
 </template>
 
 <script>
+import GetDocs from '@/mixins/getDocs.js'
 import ProductCard from '@/components/ProductCard.vue'
 import PlaceDropdown from '@/components/PlaceDropdown.vue'
-import Detail from '@/views/Detail.vue'
 import gsap from 'gsap'
+import DetailDrawer from './DetailDrawer.vue'
 
 export default {
-  name: 'Home',
+  mixins: [GetDocs],
   components: {
     ProductCard,
     PlaceDropdown,
-    Detail
+    DetailDrawer
   },
   props: {},
   data() {
     return {
-      products: [
-        {
-          id: '2323',
-          title: '잘키운 고양이 분양합니다 분양합니다 분양합니다',
-          place: '명일제1동',
-          price: '10,000원',
-          timeago: '11분 전',
-          chat_count: 2,
-          favorate_count: 5,
-          thumb_url:
-            'https://firebasestorage.googleapis.com/v0/b/carrot-new.appspot.com/o/product-thumb-1.jpg?alt=media&token=073c9ea5-818b-4581-ba17-d7c81aa1c7a1'
-        },
-        {
-          id: '2324',
-          title: '잘키운 수컷 고양이 분양합니다',
-          place: '명일제2동',
-          price: '30,000원',
-          timeago: '11분 전',
-          chat_count: 1,
-          favorate_count: 4,
-          thumb_url:
-            'https://firebasestorage.googleapis.com/v0/b/carrot-new.appspot.com/o/product-thumb-2.jpg?alt=media&token=e32988ae-0cc8-42d7-b834-5818e4c8daab'
-        }
-      ]
+      posts: [],
+      product: {}
     }
   },
   setup() {},
   created() {},
-  mounted() {},
+  async mounted() {
+    const docs = await this.$load('posts', 'created_datetime')
+    this.posts = []
+    docs.forEach((doc) => {
+      this.posts.push({ ...doc, timeago: '0분전' })
+    })
+  },
   unmounted() {},
   methods: {
     clickHeaderBtn(btn) {
@@ -105,46 +90,11 @@ export default {
       )
       console.log(btn + ' clicked')
     },
-    showDetail(id) {
-      console.log(id)
-      gsap.fromTo(
-        '.detail',
-        { transform: 'translateX(100vw)' },
-        {
-          transform: 'translateX(0vw)',
-          ease: 'power1.out',
-          duration: 0.3
-        }
-      )
-      gsap.fromTo(
-        ['.home'],
-        { opacity: 1 },
-        {
-          opacity: 0.2,
-          ease: 'power1.out',
-          duration: 0.3
-        }
-      )
-    },
-    closeDetail() {
-      gsap.fromTo(
-        '.detail',
-        { transform: 'translateX(0vw)' },
-        {
-          transform: 'translateX(100vw)',
-          ease: 'power1.out',
-          duration: 0.3
-        }
-      )
-      gsap.fromTo(
-        ['.home'],
-        { opacity: 0 },
-        {
-          opacity: 1,
-          ease: 'power1.out',
-          duration: 0.1
-        }
-      )
+    async clickPostCard(id) {
+      this.product = this.posts.filter((post) => {
+        return post.id === id
+      })[0]
+      this.$refs.detail.open(id)
     }
   }
 }

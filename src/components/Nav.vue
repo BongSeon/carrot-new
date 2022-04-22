@@ -59,6 +59,7 @@ export default {
   right: 0;
   bottom: 0;
   height: 60px;
+  z-index: 0;
 }
 #nav a {
   color: #2c3e50;

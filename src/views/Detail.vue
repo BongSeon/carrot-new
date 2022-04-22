@@ -1,40 +1,63 @@
 <template>
-  <div class="detail drawer full-screen">
+  <div class="detail">
     <slot-header>
-      <template v-slot:title>
-        <button class="text-white" @click="$emit('back')">
-          <i class="fas fa-arrow-left"></i>
-        </button>
-      </template>
+      <template v-slot:title></template>
     </slot-header>
     <!-- carousel  -->
-    <Carousel />
+    <Carousel :images="images" ref="carousel" />
   </div>
 </template>
 <script>
+import GetDocs from '@/mixins/getDocs.js'
 import Carousel from '@/components/Carousel.vue'
 export default {
+  mixins: [GetDocs],
   components: { Carousel },
+  props: {
+    id: {
+      type: String,
+      required: true
+    },
+    product: {
+      type: Object,
+      default: function () {
+        return {}
+      }
+    }
+    // images: {
+    //   type: Array,
+    //   default: function () {
+    //     return []
+    //   }
+    // }
+  },
   data() {
     return {
-      show: false
+      images: []
     }
   },
   setup() {},
-  created() {},
-  mounted() {
-    console.log('mounted')
-
-    // this.show = true
+  created() {
+    // console.log('created detail')
   },
-  beforeUnmount() {
-    console.log('console')
-    this.show = false
+  async mounted() {
+    // console.log('mounted detail')
+    this.images = await this.$loadImages('images', this.id, 'num')
+    $(function () {
+      $('#slider-div').slick('refresh')
+    })
+    // console.log(this.images)
   },
+  beforeUnmount() {},
   unmounted() {},
   methods: {
-    showStart() {},
-    goHome() {}
+    // async open(id) {
+    //   this.$refs.carousel.change(this.images)
+    //   this.showDrawer('.detail', '.home')
+    // },
+    // close() {
+    //   this.closeDrawer('.detail', '.home')
+    // }
   }
 }
 </script>
