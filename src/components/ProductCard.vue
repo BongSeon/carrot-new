@@ -38,7 +38,8 @@ export default {
   position: relative;
   cursor: pointer;
 }
-.card h2 {
+.card .info__title {
+  font-size: 16px;
   margin: 0;
 }
 .card:first-child {
@@ -59,12 +60,14 @@ export default {
 }
 .info__placetime {
   color: grey;
-  font-size: 14px;
-  padding-top: 2px;
+  font-size: 12px;
+  margin: 0;
+  padding-top: 3px;
 }
 .info__price {
   padding-top: 2px;
   font-weight: 600;
+  font-size: 18px;
 }
 .info__counts {
   position: absolute;

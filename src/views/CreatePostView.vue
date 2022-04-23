@@ -1,13 +1,15 @@
 <template>
-  <slot-header page="createpost">
-    <template v-slot:title
-      ><button><i @click="backToHome" class="fas fa-times"></i></button>중고거래
-      글쓰기
+  <header class="header">
+    <div class="header__close">
+      <button><i @click="backToHome" class="fas fa-times"></i></button>
+    </div>
+    <div class="header__title">중고거래 글쓰기</div>
 
-      <button @click="createPost">완료</button>
-    </template>
-  </slot-header>
-  <main class="createpost">
+    <div class="header__buttons">
+      <button class="btn-submit" @click="submitPost">완료</button>
+    </div>
+  </header>
+  <main class="createpost notosanskr">
     <section>
       <div class="btn-pic">
         <img
@@ -18,18 +20,70 @@
         <span>0/10</span>
       </div>
     </section>
-    <section>글제목</section>
-    <section>카테고리 선택</section>
-    <section>가격 - 가격제안 받기</section>
-    <section>상세내용</section>
+    <section>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="글제목"
+        v-model.trim="post.title"
+      />
+    </section>
+    <section>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="카테고리 선택"
+        v-model.trim="post.category"
+      />
+    </section>
+    <section class="section-price">
+      <div class="input-price">
+        <span class="won-sign">₩</span>
+        <input
+          type="text"
+          class="form-control form-control-price"
+          placeholder="가격 (선택사항)"
+          v-model.trim="post.price"
+        />
+      </div>
+      <div class="input-price-offer">
+        <p>
+          <input type="checkbox" id="a" /> <label for="a">가격제안 받기</label>
+        </p>
+      </div>
+    </section>
+    <section class="section-description">
+      <textarea
+        type="text"
+        class="form-textarea"
+        placeholder="게시글 내용을 작성해주세요.(가품 및 판매금지품목은 게시가 제한될 수 있어요.)"
+        v-model.trim="post.description"
+      />
+    </section>
   </main>
 </template>
 <script>
+import PostPoc from '@/mixins/postDoc.js'
 import Spinner from '@/components/global/Spinner.vue'
 export default {
+  mixins: [PostPoc],
   components: { Spinner },
   data() {
-    return {}
+    return {
+      post: {
+        title: '',
+        category: '',
+        price: null,
+        price_offer_yn: false,
+        description: '',
+        place: '랜덤동',
+        thumb_url: 'https://dummyimage.com/192x192/000/fff',
+        // thumb_url:
+        //   'http://mstatic1.e-himart.co.kr/contents/goods/00/03/53/78/59/0003537859__W43405B__1_640_640.jpg',
+        chat_count: 0,
+        favorate_count: 0
+      }
+    }
   },
   setup() {},
   created() {},
@@ -39,16 +93,40 @@ export default {
     backToHome() {
       this.$router.push({ path: '/home' })
     },
-    createPost() {
+    submitPost() {
       console.log('createPost')
+      console.log(this.post)
+      this.$post('posts', this.post)
     }
   }
 }
 </script>
 <style scoped>
+.header .header__buttons {
+  width: auto;
+}
+
+input {
+  margin: 0;
+  border: 0;
+}
+input::placeholder,
+textarea::placeholder {
+  color: #cdcdcd;
+}
+
+.createpost {
+  height: calc(100vh - 120px);
+}
 section {
   padding: 14px 0;
   border-bottom: 1px solid var(--border-color);
+}
+textarea {
+}
+
+.btn-submit {
+  color: var(--primary);
 }
 .btn-pic {
   cursor: pointer;
@@ -66,5 +144,47 @@ section {
 }
 .btn-pic span {
   font-size: 14px;
+}
+
+.section-price {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+input[id='a'] + label {
+  cursor: pointer;
+}
+input[type='checkbox'] {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  border-radius: 14px;
+  position: relative;
+  top: 1px;
+}
+.price-offer {
+  font-size: 12px;
+  line-height: 20px;
+}
+.form-checkbox {
+  width: 14px;
+  height: 14px;
+  line-height: 14px !important;
+}
+.input-price-offer label {
+  font-size: 14px;
+}
+.won-sign {
+  /* display: inline-block; */
+  font-family: Arial, Helvetica, Avenir, sans-serif;
+}
+.form-control-price {
+  width: auto;
+}
+.section-description {
+  height: calc(100% - 297px);
+}
+.section-description input {
+  width: 98%;
 }
 </style>

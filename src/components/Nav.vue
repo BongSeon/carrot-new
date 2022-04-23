@@ -83,10 +83,10 @@ export default {
   margin-bottom: 2px;
 }
 .tab__text {
-  padding-top: 3px;
+  padding-top: 4px;
   align-self: center;
   text-align: center;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .tab {

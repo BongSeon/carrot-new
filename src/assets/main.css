@@ -75,7 +75,6 @@ h3 {
 }
 p {
   font-size: 1rem;
-  margin: 2px;
 }
 button {
   background-color: var(--color-dark-white);
@@ -95,8 +94,11 @@ textarea {
   width: 98%;
   padding: 8px 0px 8px 4px;
   color: var(--color-dark-grey);
-
   margin: 10px auto;
+}
+textarea {
+  border: 0;
+  resize: none;
 }
 
 .btn {
@@ -151,15 +153,44 @@ textarea {
   border-radius: 50%;
 }
 
+/* --- web fonts --- */
+@font-face {
+  font-family: 'SuncheonB';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2202-2@1.0/SuncheonB.woff')
+    format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'HelveticaNeueLTPro-Md';
+  src: url('./fonts/HelveticaNeueLTPro-Md.otf');
+}
+
+@import url(//fonts.googleapis.com/earlyaccess/notosanskr.css);
+
+.notosanskr * {
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
 /* --- custom styles --- */
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Noto Sans KR', 'Noto Sans', 'HelveticaNeueLTPro-Md',
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   color: black;
 }
 main {
   padding: 0 14px;
 }
-
+.login,
+.signup {
+  font-family: SuncheonB, Avenir, Helvetica, Arial, sans-serif;
+}
+.header {
+  font-family: SuncheonB, 'Noto Sans KR', Avenir, Helvetica, Arial, sans-serif;
+}
 .bg-gray {
-  background-color: gray;
+  background-color: #dbdbdb;
+  color: black;
 }
