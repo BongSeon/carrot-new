@@ -41,6 +41,11 @@
       </main>
     </div>
 
+    <!-- 게시글 추가 버튼 -->
+    <button @click="createPost" class="btn btn-create circle">
+      <i class="fas fa-plus"></i>
+    </button>
+
     <!-- 상세 페이지 -->
     <detail-drawer ref="detail" :product="product" />
   </div>
@@ -95,8 +100,23 @@ export default {
         return post.id === id
       })[0]
       this.$refs.detail.open(id)
+    },
+    createPost() {
+      this.$router.push({ path: '/createpost' })
     }
   }
 }
 </script>
-<style scoped></style>
+<style scoped>
+.btn-create {
+  background-color: var(--primary);
+  width: 50px;
+  height: 50px;
+  color: white;
+  font-size: 20px;
+  position: fixed;
+  right: 14px;
+  bottom: 74px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+}
+</style>

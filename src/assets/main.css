@@ -2,7 +2,7 @@
   /* Color */
   --color-white: #ffffff;
   --color-light-white: #eeeeee;
-  --color-dark-white: #bdbdbd;
+  --color-dark-white: #d2d2d2;
   --color-pink: #fe918d;
   --color-dark-pink: #ff4c60;
   --color-dark-grey: #4d4d4d;
@@ -21,6 +21,7 @@
   --secondary: #bdbdbd;
   --secondary-hover: #616161;
   --warning: #ff4c60;
+  --border-color: #ececec;
 
   /* Font size */
   --font-large: 38px;
@@ -155,8 +156,8 @@ textarea {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   color: black;
 }
-.main {
-  padding: 14px;
+main {
+  padding: 0 14px;
 }
 
 .bg-gray {
