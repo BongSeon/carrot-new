@@ -20,21 +20,21 @@ export default {
       const docRef = await addDoc(collection(db, _collectionName), {
         ..._postData,
         created_datetime: serverTimestamp()
+      }).catch((_error) => {
+        this.error = _error.message
+        console.log('Create Post fail => ' + this.error)
       })
     },
     async $post(_collectionName, _postData) {
+      this.error = null
+
       // Add a new document with a generated id. (id 자동 생성)
       const docRef = await addDoc(collection(db, _collectionName), {
         ..._postData
+      }).catch((_error) => {
+        this.error = _error.message
+        console.log('Create Post fail => ' + this.error)
       })
-        .then(() => {
-          console.log('Document written with ID: ', docRef.id)
-          return true
-        })
-        .catch((_error) => {
-          this.error = _error.message
-          console.log('Create Post fail => ' + this.error)
-        })
     },
     async $postWithDatetime(_collectionName, _postData) {
       this.error = null

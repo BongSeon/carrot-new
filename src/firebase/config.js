@@ -11,7 +11,7 @@ const firebaseConfig = {
   appId: process.env.VUE_APP_FIREBASE_APPID
 }
 
-console.log(process.env)
+// console.log(process.env)
 
 // Firebase 인스턴스 초기화
 const app = initializeApp(firebaseConfig)

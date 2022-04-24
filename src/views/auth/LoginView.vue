@@ -1,43 +1,45 @@
 <template>
-  <div class="login full-screen">
-    <form @submit.prevent="handleLogin">
-      <div class="logo">
-        <img src="@/assets/img/logo.png" width="160" alt="" />
-        <h1>고양마켓</h1>
-        <p>나만 고양이 없나요?</p>
-        <p>대한민국 1등 반려묘 용품 스토어</p>
-        <p>고양마켓입니다.</p>
-      </div>
-      <div class="input">
-        <input
-          class="input-text"
-          placeholder="이메일"
-          type="text"
-          v-model.trim="email"
-          @blur="checkEmail"
-        />
-        <p class="error-msg">{{ errorEmail }}</p>
-        <input
-          class="input-text"
-          placeholder="패스워드"
-          type="password"
-          v-model.trim="password"
-          @blur="checkPassword"
-        />
-        <p class="error-msg">{{ errorPassword }}</p>
-        <p class="error-msg">{{ error }}</p>
+  <div class="login-wrap">
+    <div class="login full-screen">
+      <form @submit.prevent="handleLogin">
+        <div class="logo">
+          <img src="@/assets/img/logo.png" width="160" alt="" />
+          <h1>고양마켓</h1>
+          <p>나만 고양이 없나요?</p>
+          <p>대한민국 1등 반려묘 용품 스토어</p>
+          <p>고양마켓입니다.</p>
+        </div>
+        <div class="input">
+          <input
+            class="input-text"
+            placeholder="이메일"
+            type="text"
+            v-model.trim="email"
+            @blur="checkEmail"
+          />
+          <p class="error-msg">{{ errorEmail }}</p>
+          <input
+            class="input-text"
+            placeholder="패스워드"
+            type="password"
+            v-model.trim="password"
+            @blur="checkPassword"
+          />
+          <p class="error-msg">{{ errorPassword }}</p>
+          <p class="error-msg">{{ error }}</p>
 
-        <button class="btn btn-main btn-primary">시작하기</button>
-        <p class="bottom-text">
-          계정이 없다면 만드세요
-          <span class="btn text-primary" @click="openSignup()">가입하기</span>
-        </p>
-      </div>
-    </form>
+          <button class="btn btn-main btn-primary">시작하기</button>
+          <p class="bottom-text">
+            계정이 없다면 만드세요
+            <span class="btn text-primary" @click="openSignup()">가입하기</span>
+          </p>
+        </div>
+      </form>
+    </div>
+
+    <!-- 가입창 -->
+    <Signup @close="$closeDrawer('.signup', '.login')" />
   </div>
-
-  <!-- 가입창 -->
-  <Signup @close="$closeDrawer('.signup', '.login')" />
 </template>
 
 <script>

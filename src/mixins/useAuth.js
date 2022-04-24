@@ -3,7 +3,8 @@ import {
   getAuth,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  updateProfile
+  updateProfile,
+  signOut
 } from 'firebase/auth'
 
 // const error = ref(null)
@@ -15,8 +16,18 @@ export default {
   methods: {
     async $getCurrentUser() {
       const auth = await getAuth()
-      // console.log(auth)
       return auth.currentUser
+    },
+    async $logout() {
+      const auth = getAuth()
+      signOut(auth)
+        .then(() => {
+          this.logoutSuccess()
+          // Sign-out successful.
+        })
+        .catch((error) => {
+          // An error happened.
+        })
     },
     async $login(email, password) {
       this.error = null
