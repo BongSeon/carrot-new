@@ -5,7 +5,7 @@ export default {
     mounted() {
       console.log('mixin에서 출력')
     },
-    showDrawer(drawer, main) {
+    $showDrawer(drawer, main) {
       gsap.fromTo(
         drawer,
         { transform: 'translateX(100vw)' },
@@ -27,7 +27,7 @@ export default {
       //   )
       // }
     },
-    closeDrawer(drawer, main) {
+    $closeDrawer(drawer, main) {
       gsap.fromTo(
         drawer,
         { transform: 'translateX(0vw)' },

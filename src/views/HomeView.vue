@@ -119,4 +119,7 @@ export default {
   bottom: 74px;
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
 }
+.home {
+  margin-bottom: 90px;
+}
 </style>

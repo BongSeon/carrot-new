@@ -1,12 +1,9 @@
 <template>
   <div class="detail drawer full-screen">
-    <slot-header>
-      <template v-slot:title>
-        <button class="text-white" @click="close">
-          <i class="fas fa-arrow-left"></i>
-        </button>
-      </template>
-    </slot-header>
+    <button class="btn-back text-white" @click="close">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+
     <!-- carousel  -->
     <Carousel ref="carousel" />
   </div>
@@ -38,20 +35,13 @@ export default {
   methods: {
     async open(id) {
       this.$refs.carousel.open(id)
-      this.showDrawer('.detail', '.home')
+      this.$showDrawer('.detail', '.home')
     },
     close() {
       this.$refs.carousel.close()
-      this.closeDrawer('.detail', '.home')
+      this.$closeDrawer('.detail', '.home')
     }
   }
 }
 </script>
-<style scoped>
-.detail .header {
-  border: 0;
-  position: absolute;
-  top: 0;
-  z-index: 2;
-}
-</style>
+<style scoped></style>

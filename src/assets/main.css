@@ -194,3 +194,16 @@ main {
   background-color: #dbdbdb;
   color: black;
 }
+.btn-back {
+  position: fixed;
+  color: white;
+  background-color: transparent;
+  top: 0;
+  z-index: 2;
+  font-size: 20px;
+  left: 8px;
+  top: 8px;
+}
+.btn-close {
+  font-size: 20px;
+}

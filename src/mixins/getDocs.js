@@ -12,6 +12,20 @@ export default {
   methods: {
     async $load(_collectionName, _orderBy) {
       const collectionRef = collection(db, _collectionName)
+      const q = query(collectionRef, orderBy(_orderBy, 'desc'), limit(300))
+
+      const docs = []
+      const querySnapshot = await getDocs(q)
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        // console.log(doc.id, ' => ', doc.data())
+        docs.push({ ...doc.data(), id: doc.id })
+      })
+
+      return docs
+    },
+    async $loadbyid(_collectionName, _where, _orderBy) {
+      const collectionRef = collection(db, _collectionName)
       const q = query(collectionRef, orderBy(_orderBy), limit(300))
 
       const docs = []

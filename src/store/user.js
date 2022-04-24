@@ -16,6 +16,14 @@ export const user = {
         // 유저정보 세션 날라간 상태
         return false
       }
+    },
+    userInfo(state) {
+      const userInfo = VueCookies.get('userInfo')
+      if (userInfo) {
+        return userInfo
+      } else {
+        return null
+      }
     }
   },
   mutations: {

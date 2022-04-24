@@ -13,14 +13,25 @@
 </template>
 
 <script>
+// import {
+//   getAuth,
+//   signInWithEmailAndPassword,
+//   createUserWithEmailAndPassword,
+//   updateProfile
+// } from 'firebase/auth'
+import UseAuth from '@/mixins/useAuth.js'
 export default {
+  mixins: [UseAuth],
   components: {},
   data() {
     return {}
   },
   setup() {},
   created() {},
-  mounted() {},
+  async mounted() {
+    const user = await this.$getCurrentUser()
+    console.log(user)
+  },
   unmounted() {},
   methods: {
     logout() {

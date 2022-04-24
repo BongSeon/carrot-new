@@ -1,73 +1,80 @@
 <template>
-  <header class="header">
-    <div class="header__close">
-      <button><i @click="backToHome" class="fas fa-times"></i></button>
-    </div>
-    <div class="header__title">중고거래 글쓰기</div>
-
-    <div class="header__buttons">
-      <button class="btn-submit" @click="submitPost">완료</button>
-    </div>
-  </header>
-  <main class="createpost notosanskr">
-    <section>
-      <div class="btn-pic">
-        <img
-          class="icon"
-          src="@/assets/icons/camera-fill.svg"
-          alt="bell-icon"
-        />
-        <span>0/10</span>
+  <div class="createpost-wrap">
+    <header class="header">
+      <div class="header__close">
+        <button class="btn-close" @click="backToHome">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
-    </section>
-    <section>
-      <input
-        type="text"
-        class="form-control"
-        placeholder="글제목"
-        v-model.trim="post.title"
-      />
-    </section>
-    <section>
-      <input
-        type="text"
-        class="form-control"
-        placeholder="카테고리 선택"
-        v-model.trim="post.category"
-      />
-    </section>
-    <section class="section-price">
-      <div class="input-price">
-        <span class="won-sign">₩</span>
+      <div class="header__title">중고거래 글쓰기</div>
+
+      <div class="header__buttons">
+        <button class="btn-submit" @click="submitPost">완료</button>
+      </div>
+    </header>
+    <main class="createpost notosanskr">
+      <section>
+        <div class="btn-pic">
+          <img
+            class="icon"
+            src="@/assets/icons/camera-fill.svg"
+            alt="bell-icon"
+          />
+          <span>0/10</span>
+        </div>
+      </section>
+      <section>
         <input
           type="text"
-          class="form-control form-control-price"
-          placeholder="가격 (선택사항)"
-          v-model.trim="post.price"
+          class="form-control"
+          placeholder="글제목"
+          v-model.trim="post.title"
         />
-      </div>
-      <div class="input-price-offer">
-        <p>
-          <input type="checkbox" id="a" /> <label for="a">가격제안 받기</label>
-        </p>
-      </div>
-    </section>
-    <section class="section-description">
-      <textarea
-        type="text"
-        class="form-textarea"
-        placeholder="게시글 내용을 작성해주세요.(가품 및 판매금지품목은 게시가 제한될 수 있어요.)"
-        v-model.trim="post.description"
-      />
-    </section>
-  </main>
+      </section>
+      <section>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="카테고리 선택"
+          v-model.trim="post.category"
+        />
+      </section>
+      <section class="section-price">
+        <div class="input-price">
+          <span class="won-sign">₩</span>
+          <input
+            type="text"
+            class="form-control form-control-price"
+            placeholder="가격 (선택사항)"
+            v-model.trim="post.price"
+          />
+        </div>
+        <div class="input-price-offer">
+          <p>
+            <input type="checkbox" id="a" />
+            <label for="a">가격제안 받기</label>
+          </p>
+        </div>
+      </section>
+      <section class="section-description">
+        <textarea
+          type="text"
+          class="form-textarea"
+          placeholder="게시글 내용을 작성해주세요.(가품 및 판매금지품목은 게시가 제한될 수 있어요.)"
+          v-model.trim="post.description"
+        />
+      </section>
+    </main>
+    <!-- <Toast ref="toast" /> -->
+  </div>
 </template>
 <script>
-import PostPoc from '@/mixins/postDoc.js'
+import PostDoc from '@/mixins/postDoc.js'
 import Spinner from '@/components/global/Spinner.vue'
+import Toast from '@/components/global/Toast.vue'
 export default {
-  mixins: [PostPoc],
-  components: { Spinner },
+  mixins: [PostDoc],
+  components: { Spinner, Toast },
   data() {
     return {
       post: {
@@ -81,7 +88,8 @@ export default {
         // thumb_url:
         //   'http://mstatic1.e-himart.co.kr/contents/goods/00/03/53/78/59/0003537859__W43405B__1_640_640.jpg',
         chat_count: 0,
-        favorate_count: 0
+        favorate_count: 0,
+        uid: ''
       }
     }
   },
@@ -93,10 +101,30 @@ export default {
     backToHome() {
       this.$router.push({ path: '/home' })
     },
-    submitPost() {
+    async submitPost() {
+      if (
+        this.post.title === '' ||
+        this.post.category === '' ||
+        this.post.price === null ||
+        this.post.description === ''
+      ) {
+        this.$refs.toast.open('항목을 모두 작성해주세요')
+        return
+      }
       console.log('createPost')
       console.log(this.post)
-      this.$post('posts', this.post)
+      const uid = this.$store.getters['user/userInfo'].uid
+      console.log(uid)
+      this.post.uid = uid
+
+      await this.$postWithDatetime('posts', this.post)
+      console.log(this.error)
+      if (this.error === false) {
+        this.$emit('toastShow', '게시글이 작성에 실패했습니다.')
+      } else {
+        this.$emit('toastShow', '게시글이 작성되었습니다.')
+        this.$router.push({ path: '/home' })
+      }
     }
   }
 }
@@ -121,8 +149,6 @@ textarea::placeholder {
 section {
   padding: 14px 0;
   border-bottom: 1px solid var(--border-color);
-}
-textarea {
 }
 
 .btn-submit {
@@ -175,7 +201,7 @@ input[type='checkbox'] {
   font-size: 14px;
 }
 .won-sign {
-  /* display: inline-block; */
+  color: var(--color-light-grey);
   font-family: Arial, Helvetica, Avenir, sans-serif;
 }
 .form-control-price {
