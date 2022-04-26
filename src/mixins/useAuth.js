@@ -1,4 +1,3 @@
-import { ref } from 'vue'
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -35,13 +34,11 @@ export default {
 
       const auth = getAuth()
 
+      // Signed in
       await signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
-          // Signed in
           this.loggedUser = userCredential.user
-          //console.log(user.displayName + ' loged in')
-          // console.log('u:', user)
-          // return user
+          // console.log('loggedUser:', this.loggedUser)
         })
         .catch((_error) => {
           this.error = _error.message

@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
+import { getStorage } from 'firebase/storage'
 
 // Firebase configuration
 const firebaseConfig = {
@@ -16,6 +17,8 @@ const firebaseConfig = {
 // Firebase 인스턴스 초기화
 const app = initializeApp(firebaseConfig)
 // Cloud Firestore 인스턴스를 초기화
-var db = getFirestore()
+const db = getFirestore()
+// Get a reference to the storage service, which is used to create references in your storage bucket
+const storage = getStorage(app)
 
-export { app, db }
+export { app, db, storage }

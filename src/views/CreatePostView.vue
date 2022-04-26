@@ -13,15 +13,31 @@
       </div>
     </header>
     <main class="createpost notosanskr">
-      <section>
-        <div class="btn-pic">
-          <img
-            class="icon"
-            src="@/assets/icons/camera-fill.svg"
-            alt="bell-icon"
-          />
-          <span>0/10</span>
+      <section class="file">
+        <label for="imgfile">
+          <div class="btn-pic">
+            <img
+              class="icon"
+              src="@/assets/icons/camera-fill.svg"
+              alt="bell-icon"
+            />
+            <span>{{ files ? files.length : 0 }}/10</span>
+          </div></label
+        >
+        <div class="file-selected">
+          <div v-if="files.length > 1" class="error">
+            아직 하나의 파일 업로드만 지원합니다. 하나의 파일만 선택해주세요.
+          </div>
+          <div v-else>{{ file ? file.name : '선택된 파일이 없습니다.' }}</div>
         </div>
+
+        <input
+          type="file"
+          id="imgfile"
+          @change="handleChange"
+          accept=".png, .jpg, .jpeg"
+          multiple
+        />
       </section>
       <section>
         <input
@@ -43,6 +59,7 @@
         <div class="input-price">
           <span class="won-sign">₩</span>
           <input
+            v-number
             type="text"
             class="form-control form-control-price"
             placeholder="가격 (선택사항)"
@@ -65,15 +82,22 @@
         />
       </section>
     </main>
-    <!-- <Toast ref="toast" /> -->
+    <Toast ref="toast" />
   </div>
 </template>
 <script>
-import PostDoc from '@/mixins/postDoc.js'
+import { db } from '../firebase/config'
+import { getAuth } from 'firebase/auth'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import useStorage from '@/mixins/useStorage.js'
+import postDoc from '@/mixins/postDoc.js'
 import Spinner from '@/components/global/Spinner.vue'
 import Toast from '@/components/global/Toast.vue'
+
+// allowed file types
+const types = ['image/png', 'image/jpeg', 'image/jpeg']
 export default {
-  mixins: [PostDoc],
+  mixins: [useStorage, postDoc],
   components: { Spinner, Toast },
   data() {
     return {
@@ -84,12 +108,24 @@ export default {
         price_offer_yn: false,
         description: '',
         place: '랜덤동',
-        thumb_url: 'https://dummyimage.com/192x192/000/fff',
+        thumb_url: null,
         // thumb_url:
         //   'http://mstatic1.e-himart.co.kr/contents/goods/00/03/53/78/59/0003537859__W43405B__1_640_640.jpg',
         chat_count: 0,
         favorate_count: 0,
         uid: ''
+      },
+      files: [],
+      file: null
+    }
+  },
+  directives: {
+    number: {
+      mounted(el) {
+        el.addEventListener('input', () => {
+          // console.log(event.target.value)
+          event.target.value = event.target.value.replace(/[^0-9]/g, '')
+        })
       }
     }
   },
@@ -101,6 +137,27 @@ export default {
     backToHome() {
       this.$router.push({ path: '/home' })
     },
+    updateThumbUrl(doc_id, thumb_url) {
+      const collection = 'posts'
+      // const doc_id = 'lEEhwaPcsWaZR36XcEtT'
+      // const thumb_url =
+      // 'https://firebasestorage.googleapis.com/v0/b/carrot-new.appspot.com/o/thumbnails%2F2WZiX994HJQti0orknoFJRYfMln1%2Fthumb-lEEhwaPcsWaZR36XcEtT.jpg?alt=media&token=b0f0d9c5-3011-42a8-81d2-92df0289dd38'
+      this.$updateThumbUrl(collection, doc_id, thumb_url)
+    },
+    handleChange(e) {
+      this.files = e.target.files
+      console.log(e.target.files)
+
+      const selected = e.target.files[0]
+
+      // 한번 더 파일타입 체크 하는 경우
+      // if(selected && types.includes(selected.type))
+      if (selected) {
+        this.file = selected
+      } else {
+        this.file = null
+      }
+    },
     async submitPost() {
       if (
         this.post.title === '' ||
@@ -111,21 +168,64 @@ export default {
         this.$refs.toast.open('항목을 모두 작성해주세요')
         return
       }
-      console.log('createPost')
-      console.log(this.post)
-      const uid = this.$store.getters['user/userInfo'].uid
-      console.log(uid)
-      this.post.uid = uid
-
-      await this.$postWithDatetime('posts', this.post)
-      console.log(this.error)
-      if (this.error === false) {
-        this.$emit('toastShow', '게시글이 작성에 실패했습니다.')
-      } else {
-        this.$emit('toastShow', '게시글이 작성되었습니다.')
-        this.$router.push({ path: '/home' })
+      // const uid = this.$store.getters['user/userInfo'].uid
+      let uid = null
+      try {
+        const auth = await getAuth()
+        uid = auth.currentUser.uid
+        this.post.uid = uid
+      } catch (err) {
+        console.log(err)
+        this.$emit('toastShow', '잠시후 다시 시도해주세요.')
       }
+      await this.$uploadImage(uid, this.file)
+
+      // const downloadURL = await this.$getDownloadURL(this.filePath)
+      // await console.log(downloadURL)
+      // return
+      // if (!downloadURL) {
+      //   console.log('download url get fail!')
+      //   return
+      // }
+    },
+    async handleAfterImageUpload(downloadURL) {
+      this.post.thumb_url = downloadURL
+      console.log(this.post)
+
+      // await this.$postWithDatetime('posts', this.post)
+      const docRef = await addDoc(collection(db, 'posts'), {
+        ...this.post,
+        created_datetime: serverTimestamp()
+      }).catch((_error) => {
+        // this.error = _error.message
+        console.log('Create Post fail => ' + this.error)
+      })
+      console.log('Document written with ID: ', docRef.id)
+
+      const imageDocRef = await addDoc(collection(db, 'images'), {
+        num: 1,
+        product_id: docRef.id,
+        url: downloadURL
+      }).catch((_error) => {
+        // this.error = _error.message
+        console.log('Create Post fail => ' + this.error)
+      })
+      console.log('Document written Images with ID: ', imageDocRef.id)
+
+      this.$emit('toastShow', '게시글이 작성되었습니다.')
+      this.$router.push({ path: '/home' })
     }
+    // async handleAfterPostCreated(productID, downloadURL) {
+    //   console.log('productID: ', {product_id: productID })
+
+    //   if (this.error !== null) {
+    //     console.log(this.error)
+    //     this.$emit('toastShow', '게시글이 작성에 실패했습니다.')
+    //   } else {
+    //     this.$emit('toastShow', '게시글이 작성되었습니다.')
+    //     this.$router.push({ path: '/home' })
+    //   }
+    // }
   }
 }
 </script>
@@ -149,6 +249,14 @@ textarea::placeholder {
 section {
   padding: 14px 0;
   border-bottom: 1px solid var(--border-color);
+}
+section.file {
+  display: flex;
+  align-items: center;
+}
+.file-selected {
+  width: 200px;
+  padding-left: 8px;
 }
 
 .btn-submit {
@@ -184,9 +292,13 @@ input[type='checkbox'] {
   width: 14px;
   height: 14px;
   cursor: pointer;
-  border-radius: 14px;
   position: relative;
-  top: 1px;
+  top: 2px;
+  margin-right: 2px;
+}
+input[type='file'] {
+  visibility: hidden;
+  width: 0px;
 }
 .price-offer {
   font-size: 12px;

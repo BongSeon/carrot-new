@@ -1,5 +1,4 @@
 import VueCookies from 'vue-cookies'
-import { getAuth } from 'firebase/auth'
 
 export const user = {
   namespaced: true,
