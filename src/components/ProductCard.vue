@@ -6,7 +6,7 @@
     <div class="info">
       <h2 class="info__title">{{ product.title }}</h2>
       <p class="info__placetime">{{ product.place }} · {{ product.timeago }}</p>
-      <h2 class="info__price">{{ product.price }}</h2>
+      <h2 class="info__price">{{ product.price }}원</h2>
       <p class="info__counts">
         <i class="far fa-comment"></i>{{ product.chat_count
         }}<i class="far fa-heart"></i>{{ product.favorate_count }}

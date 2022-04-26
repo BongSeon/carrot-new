@@ -113,11 +113,14 @@ export default {
   width: 50px;
   height: 50px;
   color: white;
-  font-size: 20px;
+  font-size: 1.35rem;
   position: fixed;
   right: 14px;
   bottom: 74px;
-  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 2px 2px 8px rgb(0 0 0 / 30%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .home {
   margin-bottom: 90px;

@@ -28,7 +28,8 @@
           <p class="error-msg">{{ errorPassword }}</p>
           <p class="error-msg">{{ error }}</p>
 
-          <button class="btn btn-main btn-primary">시작하기</button>
+          <btn-main :pending="pending" content="시작하기" />
+
           <p class="bottom-text">
             계정이 없다면 만드세요
             <span class="btn text-primary" @click="openSignup()">가입하기</span>
@@ -46,16 +47,18 @@
 import Drawer from '@/mixins/drawer.js'
 import UseAuth from '@/mixins/useAuth.js'
 import Signup from '@/views/auth/Signup.vue'
+import Spinner from '@/components/global/Spinner.vue'
 
 export default {
   mixins: [Drawer, UseAuth],
-  components: { Signup },
+  components: { Signup, Spinner },
   data() {
     return {
       email: '',
       password: '',
       errorEmail: null,
-      errorPassword: null
+      errorPassword: null,
+      pending: false
     }
   },
   setup() {},
@@ -66,6 +69,10 @@ export default {
   unmounted() {},
   methods: {
     async handleLogin() {
+      console.log('handleLogin')
+      if (this.pending === true) {
+        return
+      }
       if (this.email === '') {
         this.errorEmail = '이메일을 입력해주세요'
         return
@@ -80,17 +87,26 @@ export default {
         return
       }
 
+      this.pending = true
+
       await this.$login(this.email, this.password)
       if (this.error === null && this.loggedUser !== null) {
         // console.log('setUser')
         // console.log(this.loggedUser.displayName)
         // console.log(this.loggedUser.email)
+
+        this.pending = false
         this.$store.commit('user/setUser', {
           displayName: this.loggedUser.displayName,
           email: this.loggedUser.email,
-          uid: this.loggedUser.uid
+          uid: this.loggedUser.uid,
+          photoURL: this.loggedUser.photoURL
         })
 
+        this.$emit(
+          'toastShow',
+          this.loggedUser.displayName + '님 어서오세요. 환영합니다!'
+        )
         this.$router.push({ path: '/home' })
       }
     },

@@ -61,7 +61,7 @@ export default {
             // Profile updated!
             console.log('Profile updated!', auth.currentUser)
             const user = userCredential.user
-            return user
+            this.afterSignup(user)
           })
         })
         .catch((_error) => {

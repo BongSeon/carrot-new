@@ -32,7 +32,8 @@
         />
         <p class="error-msg">{{ error }}</p>
 
-        <button class="btn btn-main btn-primary">가입하기</button>
+        <btn-main :pending="pending" content="가입하기" />
+
         <p class="bottom-text">
           계정이 있으신가요?
           <span class="btn text-primary" @click="closeDrawer()">로그인</span>
@@ -52,7 +53,8 @@ export default {
       password: '',
       displayName: '',
       errorEmail: null,
-      errorPassword: null
+      errorPassword: null,
+      pending: false
     }
   },
   setup() {},
@@ -61,6 +63,10 @@ export default {
   unmounted() {},
   methods: {
     async handleSignup() {
+      console.log('handleSignup')
+      if (this.pending === true) {
+        return
+      }
       if (
         this.email === '' ||
         this.password === '' ||
@@ -69,18 +75,24 @@ export default {
         this.error = '모든 항목을 입력해주세요'
         return
       }
-      const user = await this.$signup(
-        this.email,
-        this.password,
-        this.displayName
-      )
-      if (user !== undefined) {
-        console.log(user + '님 가입을 환영합니다!')
-      }
+      this.pending = true
 
-      // 가입 성공시 처리
-      // toast표시
-      //this.$emit('close-drawer')
+      await this.$signup(this.email, this.password, this.displayName)
+    },
+    afterSignup(user) {
+      if (this.error === null && this.user !== null) {
+        this.pending = false
+        this.$store.commit('user/setUser', {
+          displayName: user.displayName,
+          email: user.email,
+          uid: user.uid,
+          photoURL: user.photoURL
+        })
+        console.log(user.displayName + '님 가입을 환영합니다!')
+        this.$emit('toastShow', user.displayName + '님 가입을 환영합니다!')
+        this.$router.push({ path: '/home' })
+      }
+      console.log('환영합니다!')
     },
     closeDrawer() {
       this.email = ''

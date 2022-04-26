@@ -1,5 +1,5 @@
 <template>
-  <router-view v-on:toastShow="handleT" />
+  <router-view v-on:toastShow="openToast" />
   <Nav />
   <Toast ref="toast" />
 </template>
@@ -12,9 +12,9 @@ export default {
     Toast
   },
   methods: {
-    handleT() {
-      console.log('handleT')
-      this.$refs.toast.open('게시글이 작성되었습니다.')
+    openToast(message) {
+      console.log(message)
+      this.$refs.toast.open(message)
     }
   }
 }

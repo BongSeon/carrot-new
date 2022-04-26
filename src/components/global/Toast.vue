@@ -1,18 +1,18 @@
 <template>
-  <div class="toast" :class="{ show: show }">{{ toastMsg }}</div>
+  <div class="toast" :class="{ show: show }">{{ message }}</div>
 </template>
 
 <script>
 export default {
   data() {
     return {
-      toastMsg: '',
+      message: '',
       show: false
     }
   },
   methods: {
-    open(msg) {
-      this.toastMsg = msg
+    open(message) {
+      this.message = message
       this.show = true
 
       setTimeout(() => {
