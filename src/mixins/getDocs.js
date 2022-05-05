@@ -1,6 +1,8 @@
 import { db } from '../firebase/config'
 import {
   collection,
+  getDoc,
+  doc,
   getDocs,
   query,
   where,
@@ -10,9 +12,14 @@ import {
 
 export default {
   methods: {
-    async $load(_collectionName, _orderBy) {
+    async $getDocs(_collectionName, _orderBy = null) {
       const collectionRef = collection(db, _collectionName)
-      const q = query(collectionRef, orderBy(_orderBy, 'desc'), limit(300))
+      let q = null
+      if (_orderBy === null) {
+        q = query(collectionRef, limit(300))
+      } else {
+        q = query(collectionRef, orderBy(_orderBy, 'desc'), limit(300))
+      }
 
       const docs = []
       const querySnapshot = await getDocs(q)
@@ -23,6 +30,19 @@ export default {
       })
 
       return docs
+    },
+    async $getDoc(_collectionName, _id) {
+      const docRef = doc(db, _collectionName, _id)
+      const docSnap = await getDoc(docRef)
+
+      if (docSnap.exists()) {
+        // console.log('Document data:', docSnap.data())
+        return docSnap.data()
+      } else {
+        // doc.data() will be undefined in this case
+        console.log('No such document!')
+        return null
+      }
     },
     async $loadbyid(_collectionName, _where, _orderBy) {
       const collectionRef = collection(db, _collectionName)

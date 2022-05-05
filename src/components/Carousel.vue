@@ -84,11 +84,12 @@ export default {
   },
   methods: {
     async open(id) {
+      console.log(id)
       if (!this.inited) {
         this.inited = true
         this.init()
       }
-      // console.log(id)
+
       this.images = await this.$loadImages('images', id, 'num')
 
       await this.images.forEach((img) => {
@@ -96,7 +97,7 @@ export default {
           '<div class="carousel-item" style="background-image: url(' +
           img.url +
           ')"></div>'
-        console.log(h)
+        // console.log(h)
         this.cnt++
 
         $('#slider-div').slick('slickAdd', h)
@@ -159,7 +160,7 @@ export default {
 }
 .carousel-item {
   width: 100px;
-  height: 35vh;
+  height: 350px;
   background-size: cover;
   background-position: center;
 }
@@ -193,5 +194,16 @@ export default {
 }
 .carousel .slick-dots li {
   margin: 0;
+}
+
+@media (min-width: 576px) {
+  .carousel-item {
+    height: 420px;
+  }
+}
+@media (min-width: 768px) {
+  .carousel-item {
+    height: 560px;
+  }
 }
 </style>

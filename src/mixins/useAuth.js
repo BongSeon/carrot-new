@@ -15,6 +15,7 @@ export default {
   methods: {
     async $getCurrentUser() {
       const auth = await getAuth()
+      console.log(auth.currentUser)
       return auth.currentUser
     },
     async $logout() {

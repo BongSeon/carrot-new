@@ -47,7 +47,7 @@
     </button>
 
     <!-- 상세 페이지 -->
-    <detail-drawer ref="detail" :product="product" />
+    <detail-drawer ref="detail" :post="product" :postWriter="postWriter" />
   </div>
 </template>
 
@@ -69,13 +69,14 @@ export default {
   data() {
     return {
       posts: [],
-      product: {}
+      product: {},
+      postWriter: {}
     }
   },
   setup() {},
   created() {},
   async mounted() {
-    const docs = await this.$load('posts', 'created_datetime')
+    const docs = await this.$getDocs('posts', 'created_datetime')
     this.posts = []
     docs.forEach((doc) => {
       this.posts.push({ ...doc, timeago: '0분전' })
@@ -99,7 +100,13 @@ export default {
       this.product = this.posts.filter((post) => {
         return post.id === id
       })[0]
+
+      console.log('open drawer detail')
       this.$refs.detail.open(id)
+
+      const loadUsers = await this.$getDocs('users')
+      this.postWriter = loadUsers[0]
+      console.log(this.postWriter)
     },
     createPost() {
       this.$router.push({ path: '/createpost' })

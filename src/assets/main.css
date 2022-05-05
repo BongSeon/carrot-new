@@ -51,6 +51,8 @@ body {
   padding: 0;
   box-sizing: border-box;
   color: var(--color-black);
+  /* Hide scrollbars */
+  /* overflow: hidden;  */
 }
 h1,
 h2,
