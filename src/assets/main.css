@@ -52,7 +52,8 @@ body {
   box-sizing: border-box;
   color: var(--color-black);
   /* Hide scrollbars */
-  /* overflow: hidden;  */
+  /* overflow: hidden; */
+  overflow-x: hidden;
 }
 h1,
 h2,
@@ -215,4 +216,55 @@ main {
 }
 .btn-close {
   font-size: 20px;
+}
+
+/* mycarrot */
+.mycarrot section {
+  padding: 0;
+  padding: 10px;
+  /* background-color: antiquewhite; */
+  margin-bottom: 10px;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 1px 1px 6px rgb(0 0 0 / 10%);
+}
+.mycarrot section.first {
+  border-top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mycarrot section.second {
+  display: flex;
+  justify-content: space-evenly;
+}
+.mycarrot h1 {
+  margin: 0;
+}
+.mycarrot .my-avatar {
+  border-radius: 50%;
+  width: 60px;
+}
+.mycarrot .my-info-wrap {
+  display: flex;
+}
+.mycarrot .my-info {
+  padding-left: 10px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: left;
+}
+.mycarrot .my-info .display-name {
+  font-family: 'SuncheonB';
+  font-size: 18px;
+}
+.mycarrot .btn-logout {
+  height: 38px;
+}
+.mycarrot .btn-list {
+  background-color: transparent;
+}
+.mycarrot .btn-list img {
+  width: 72px;
 }

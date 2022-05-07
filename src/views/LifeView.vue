@@ -1,5 +1,5 @@
 <template>
-  <div class="life-wrap">
+  <div v-show="show" class="life-wrap">
     <slot-header page="life">
       <template v-slot:title>동네 생활</template>
     </slot-header>
@@ -15,12 +15,14 @@
 export default {
   components: {},
   data() {
-    return {
-      sampleData: ''
-    }
+    return { show: false }
   },
   setup() {},
-  created() {},
+  created() {
+    setTimeout(() => {
+      this.show = true
+    }, 50)
+  },
   mounted() {},
   unmounted() {},
   methods: {}

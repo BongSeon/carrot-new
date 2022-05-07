@@ -1,7 +1,20 @@
 <template>
   <div class="carousel-wrap">
     <div class="carousel">
-      <div id="slider-div"></div>
+      <div id="slider-div">
+        <!-- <div
+          class="carousel-item"
+          :style="{
+            backgroundImage:
+              'url(' +
+              'https://blog.kakaocdn.net/dn/F585W/btrp0JM1R42/Vh9vFKutQpiFsblY7RCzMK/img.png' +
+              ')'
+          }"
+        ></div> -->
+        <div class="carousel-item bg-gray">
+          <div class="loader">Loading...</div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -27,23 +40,22 @@ export default {
           url: '/img/slide-3.svg'
         }
       ],
-      cnt: 1
+      cnt: 1,
+      inited: false
     }
   },
-  computed: {},
-  setup() {},
-  created() {},
   mounted() {},
   unmounted() {
     $('#slider-div').slick('unslick')
+    // this.inited = false
   },
   methods: {
     async open(id) {
-      // post의 id를 전달받아
-      // 해당 post의 이미지들을 images 컬렉션에서 로드하여
-      // slick 슬라이더로 표시한다.
-
-      this.init() // init slick
+      console.log(id)
+      if (!this.inited) {
+        this.inited = true
+        this.init()
+      }
 
       this.images = await this.$loadImages('images', id, 'num')
 
@@ -57,7 +69,10 @@ export default {
 
         $('#slider-div').slick('slickAdd', h)
       })
-      console.log(this.cnt)
+      await console.log(this.cnt)
+
+      $('#slider-div').slick('slickRemove', true)
+      this.cnt--
     },
     init() {
       $(function () {
@@ -80,6 +95,23 @@ export default {
           draggable: true //드래그 가능 여부
         })
       })
+    },
+    close() {
+      setTimeout(() => {
+        this.clear()
+        $('#slider-div').slick(
+          'slickAdd',
+          '<div class="carousel-item bg-gray"><div class="loader">Loading...</div></div>'
+        )
+        this.cnt++
+      }, 300)
+    },
+    clear() {
+      for (let i = 0; i < this.cnt; i++) {
+        console.log('remove')
+        $('#slider-div').slick('slickRemove', false)
+      }
+      this.cnt = 0
     }
   }
 }

@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import store from '../store'
 import HomeView from '../views/HomeView.vue'
 import DetailView from '../views/Detail.vue'
+import MyCarrotView from '../views/MyCarrotView.vue'
 
 const routes = [
   {
@@ -19,7 +20,10 @@ const routes = [
   {
     path: '/home',
     name: 'home',
-    component: HomeView
+    component: HomeView,
+    meta: {
+      page: 1
+    }
   },
   {
     path: '/detail/:id',
@@ -28,9 +32,22 @@ const routes = [
     props: true
   },
   {
-    path: '/detail',
-    name: 'detail',
-    component: DetailView
+    path: '/life',
+    name: 'life',
+    component: () =>
+      import(/* webpackChunkName: "life" */ '../views/LifeView.vue'),
+    meta: {
+      page: 3
+    }
+  },
+  {
+    path: '/chat',
+    name: 'chat',
+    component: () =>
+      import(/* webpackChunkName: "chat" */ '../views/ChatView.vue'),
+    meta: {
+      page: 4
+    }
   },
   {
     path: '/my',
@@ -38,26 +55,21 @@ const routes = [
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "mycarrot" */ '../views/MyCarrotView.vue')
-  },
-  {
-    path: '/life',
-    name: 'life',
-    component: () =>
-      import(/* webpackChunkName: "life" */ '../views/LifeView.vue')
-  },
-  {
-    path: '/chat',
-    name: 'chat',
-    component: () =>
-      import(/* webpackChunkName: "chat" */ '../views/ChatView.vue')
+    component: MyCarrotView,
+    meta: {
+      page: 5
+    }
   },
   {
     path: '/createpost',
     name: 'createpost',
     component: () =>
-      import(/* webpackChunkName: "createpost" */ '../views/CreatePostView.vue')
+      import(
+        /* webpackChunkName: "createpost" */ '../views/CreatePostView.vue'
+      ),
+    meta: {
+      page: 2
+    }
   }
 ]
 

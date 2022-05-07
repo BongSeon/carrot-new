@@ -50,20 +50,6 @@ export default {
 
       // return docRef.id
     },
-    async $postToImages(_collectionName, _postData) {
-      this.error = null
-
-      // Add a new document with a generated id. (id 자동 생성)
-      const docRef = await addDoc(collection(db, _collectionName), {
-        ..._postData,
-        created_datetime: serverTimestamp()
-      }).catch((_error) => {
-        this.error = _error.message
-        console.log('Create Post fail => ' + this.error)
-      })
-      console.log('Document written with ID: ', docRef.id)
-      return docRef.id
-    },
     // thumb_url 수정
     async $updateThumbUrl(_collectionName, _some_id, _url) {
       this.error = null

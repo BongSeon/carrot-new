@@ -91,7 +91,6 @@ export default {
 
       await this.$login(this.email, this.password)
       if (this.error === null && this.loggedUser !== null) {
-        // console.log('setUser')
         // console.log(this.loggedUser.displayName)
         // console.log(this.loggedUser.email)
 

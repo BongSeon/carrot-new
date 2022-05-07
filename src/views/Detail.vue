@@ -1,5 +1,5 @@
 <template>
-  <div class="post-detail">
+  <div v-show="show" class="post-detail">
     <i class="btn-back fas fa-arrow-left" @click="close"></i>
 
     <!-- carousel  -->
@@ -56,27 +56,9 @@ import Carousel from '@/components/Carousel.vue'
 export default {
   mixins: [GetDocs],
   components: { Carousel },
-  props: {
-    // product: {
-    //   type: Object,
-    //   default: function () {
-    //     return {}
-    //   }
-    // }
-    // images: {
-    //   type: Array,
-    //   default: function () {
-    //     return []
-    //   }
-    // }
-  },
+  props: {},
   data() {
-    return {
-      id: null,
-      images: [],
-      post: {},
-      postWriter: {}
-    }
+    return { show: false, id: null, images: [], post: {}, postWriter: {} }
   },
   setup() {},
   created() {
@@ -84,31 +66,22 @@ export default {
     this.id = this.$route.params.id
     console.log(this.id)
 
-    // const temp =
-    // console.log(temp);
+    setTimeout(() => {
+      this.show = true
+    }, 50)
   },
   async mounted() {
     this.$refs.carousel.open(this.id)
     this.post = await this.$getDoc('posts', this.id)
     this.postWriter = await this.$getDoc('users', this.post.uid)
     console.log(this.postWriter)
-    // console.log('mounted detail')
-    // this.images = await this.$loadImages('images', this.id, 'num')
-    // $(function () {
-    //   $('#slider-div').slick('refresh')
-    // })
-    // console.log(this.images)
   },
   beforeUnmount() {},
   unmounted() {},
   methods: {
-    // async open(id) {
-    //   this.$refs.carousel.change(this.images)
-    //   this.showDrawer('.detail', '.home')
-    // },
-    // close() {
-    //   this.closeDrawer('.detail', '.home')
-    // }
+    close() {
+      this.$router.push({ path: '/home' })
+    }
   }
 }
 </script>

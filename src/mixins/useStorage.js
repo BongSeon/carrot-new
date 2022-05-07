@@ -16,8 +16,6 @@ export default {
         console.log('No File Selected')
         return
       }
-      // const auth = await getAuth()
-      // const uid = auth.currentUser.uid
       // console.log(uid)
       this.filePath = `products/${uid}/${file.name}`
       console.log(this.filePath)

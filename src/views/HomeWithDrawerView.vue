@@ -44,6 +44,9 @@
     <button @click="createPost" class="btn btn-create circle">
       <i class="fas fa-plus"></i>
     </button>
+
+    <!-- 상세 페이지 -->
+    <detail-drawer ref="detail" :post="product" :postWriter="postWriter" />
   </div>
 </template>
 
@@ -52,19 +55,22 @@ import GetDocs from '@/mixins/getDocs.js'
 import ProductCard from '@/components/ProductCard.vue'
 import PlaceDropdown from '@/components/PlaceDropdown.vue'
 import gsap from 'gsap'
+import DetailDrawer from './DetailDrawer.vue'
 
 export default {
   mixins: [GetDocs],
   components: {
     ProductCard,
-    PlaceDropdown
-    // DetailDrawer
+    PlaceDropdown,
+    DetailDrawer
   },
   props: {},
   data() {
     return {
       show: false,
-      posts: []
+      posts: [],
+      product: {},
+      postWriter: {}
     }
   },
   setup() {},
@@ -95,7 +101,18 @@ export default {
       console.log(btn + ' clicked')
     },
     async clickPostCard(id) {
-      this.$router.push({ path: `/detail/${id}` })
+      // detail drawer open 하는 방식
+      this.product = this.posts.filter((post) => {
+        return post.id === id
+      })[0]
+
+      // (login페이지에서 sign-up drawer 표시하는 방식 우측에서 중앙으로)
+      console.log('open drawer detail')
+      this.$refs.detail.open(id)
+
+      const loadUsers = await this.$getDocs('users')
+      this.postWriter = loadUsers[0]
+      console.log(this.postWriter)
     },
     createPost() {
       this.$router.push({ path: '/createpost' })

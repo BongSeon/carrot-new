@@ -1,9 +1,9 @@
 <template>
-  <div class="mycarrot-wrap">
+  <div class="mycarrot" v-show="show">
     <slot-header>
       <template v-slot:title> 나의 당근 </template>
     </slot-header>
-    <section class="first mycarrot">
+    <section class="first">
       <div class="my-info-wrap">
         <img class="my-avatar" :src="photoURL" alt="" />
         <div class="my-info">
@@ -39,10 +39,14 @@ export default {
   mixins: [UseAuth],
   components: {},
   data() {
-    return { photoURL: '', displayName: '', email: '', uid: '' }
+    return { photoURL: '', displayName: '', email: '', uid: '', show: false }
   },
   setup() {},
-  created() {},
+  created() {
+    setTimeout(() => {
+      this.show = true
+    }, 50)
+  },
   async mounted() {
     const user = this.$store.getters['user/userInfo']
     console.log('user:', user)
@@ -65,56 +69,4 @@ export default {
 }
 </script>
 
-<style scoped>
-section {
-  padding: 0;
-  padding: 10px;
-  /* background-color: antiquewhite; */
-  margin-bottom: 10px;
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
-  box-shadow: 1px 1px 6px rgb(0 0 0 / 10%);
-}
-section.first {
-  border-top: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-section.second {
-  display: flex;
-  justify-content: space-evenly;
-}
-h1 {
-  margin: 0;
-}
-.my-avatar {
-  border-radius: 50%;
-  width: 60px;
-}
-.my-info-wrap {
-  display: flex;
-}
-.my-info {
-  padding-left: 10px;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: left;
-}
-.my-info .display-name {
-  font-family: 'SuncheonB';
-  font-size: 18px;
-}
-.btn-logout {
-  height: 38px;
-}
-
-.btn-list {
-  background-color: transparent;
-}
-.btn-list img {
-  width: 72px;
-  /* height: 75px; */
-}
-</style>
+<style></style>

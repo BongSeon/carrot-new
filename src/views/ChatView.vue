@@ -1,5 +1,5 @@
 <template>
-  <div class="chat-wrap">
+  <div v-show="show" class="chat-wrap">
     <slot-header page="chat">
       <template v-slot:title>채팅 목록</template>
     </slot-header>
@@ -15,10 +15,14 @@
 export default {
   components: {},
   data() {
-    return {}
+    return { show: false }
   },
   setup() {},
-  created() {},
+  created() {
+    setTimeout(() => {
+      this.show = true
+    }, 50)
+  },
   mounted() {},
   unmounted() {},
   methods: {}

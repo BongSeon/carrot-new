@@ -1,5 +1,5 @@
 <template>
-  <div class="createpost-wrap">
+  <div v-show="show" class="createpost-wrap">
     <header class="header">
       <div class="header__close">
         <button class="btn-close" @click="backToHome">
@@ -101,6 +101,7 @@ export default {
   components: { Spinner, Toast },
   data() {
     return {
+      show: false,
       post: {
         title: '',
         category: '',
@@ -130,7 +131,11 @@ export default {
     }
   },
   setup() {},
-  created() {},
+  created() {
+    setTimeout(() => {
+      this.show = true
+    }, 50)
+  },
   mounted() {},
   unmounted() {},
   methods: {
@@ -205,7 +210,8 @@ export default {
       const imageDocRef = await addDoc(collection(db, 'images'), {
         num: 1,
         product_id: docRef.id,
-        url: downloadURL
+        url: downloadURL,
+        post_title: this.post.title
       }).catch((_error) => {
         // this.error = _error.message
         console.log('Create Post fail => ' + this.error)

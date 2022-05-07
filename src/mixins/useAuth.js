@@ -6,8 +6,6 @@ import {
   signOut
 } from 'firebase/auth'
 
-// const error = ref(null)
-
 export default {
   data() {
     return { error: null, loggedUser: null }
