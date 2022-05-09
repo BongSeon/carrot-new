@@ -34,9 +34,11 @@ export default {
   setup() {},
   created() {},
   mounted() {},
-  unmounted() {
-    $('#slider-div').slick('unslick')
+  beforeUnmount() {
+    console.log('beforeUnmount')
+    this.clear()
   },
+  unmounted() {},
   methods: {
     async open(id) {
       // post의 id를 전달받아
@@ -44,6 +46,10 @@ export default {
       // slick 슬라이더로 표시한다.
 
       this.init() // init slick
+
+      // $(function () {
+      //   $('#slider-div').slick('refresh')
+      // })
 
       this.images = await this.$loadImages('images', id, 'num')
 
@@ -80,6 +86,14 @@ export default {
           draggable: true //드래그 가능 여부
         })
       })
+    },
+    clear() {
+      for (let i = 0; i < this.cnt; i++) {
+        console.log('remove')
+        $('#slider-div').slick('slickRemove', false)
+      }
+      this.cnt = 0
+      $('#slider-div').slick('unslick')
     }
   }
 }

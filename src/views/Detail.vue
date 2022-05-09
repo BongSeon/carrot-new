@@ -80,6 +80,7 @@ export default {
   unmounted() {},
   methods: {
     close() {
+      // this.$refs.carousel.close()
       this.$router.push({ path: '/home' })
     }
   }
