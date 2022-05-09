@@ -1,6 +1,7 @@
 <template>
   <div v-show="show" class="post-detail">
     <i class="btn-back fas fa-arrow-left" @click="close"></i>
+    <i class="btn-delete fas fa-trash-alt" @click="trash"></i>
 
     <!-- carousel  -->
     <Carousel :images="images" ref="carousel" />
@@ -53,8 +54,10 @@
 <script>
 import GetDocs from '@/mixins/getDocs.js'
 import Carousel from '@/components/Carousel.vue'
+import useStorage from '@/mixins/useStorage.js'
+
 export default {
-  mixins: [GetDocs],
+  mixins: [GetDocs, useStorage],
   components: { Carousel },
   props: {},
   data() {
@@ -82,6 +85,11 @@ export default {
     close() {
       // this.$refs.carousel.close()
       this.$router.push({ path: '/home' })
+    },
+    async trash() {
+      console.log('trash')
+      this.$delete('products/2WZiX994HJQti0orknoFJRYfMln1/fence.JPG')
+      // this.$delete('product-thumb-1.jpg')
     }
   }
 }
@@ -170,5 +178,18 @@ export default {
 }
 .post-detail .btn-begin-chat {
   margin-right: 15px;
+}
+
+.post-detail .btn-delete {
+  cursor: pointer;
+  position: fixed;
+  color: white;
+  background-color: transparent;
+  top: 0;
+  z-index: 2;
+  font-size: 20px;
+  right: 8px;
+  top: 8px;
+  padding: 4px;
 }
 </style>

@@ -1,4 +1,10 @@
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject
+} from 'firebase/storage'
 import { getAuth } from 'firebase/auth'
 
 export default {
@@ -6,6 +12,20 @@ export default {
     return { error: null, url: null, filePath: null, downloadURL: null }
   },
   methods: {
+    async $delete(filePath) {
+      const storage = getStorage()
+      // const storageRef = ref(storage, 'images/desert.jpg');
+      const storageRef = ref(storage, filePath)
+
+      // Delete the file
+      deleteObject(storageRef)
+        .then(() => {
+          console.log(`${filePath} deleted successfully`)
+        })
+        .catch((error) => {
+          console.log('Uh-oh, an error occurred!', error)
+        })
+    },
     // storage에 썸네일 및 상품이미지 저장하는 함수
     async $uploadImage(uid, file) {
       if (!uid) {
