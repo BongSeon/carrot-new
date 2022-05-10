@@ -3,6 +3,7 @@ import {
   collection,
   doc,
   addDoc,
+  setDoc,
   updateDoc,
   serverTimestamp
 } from 'firebase/firestore'
@@ -12,18 +13,19 @@ export default {
     return { error: null }
   },
   methods: {
-    async $postUser() {
+    // doc id를 직접 할당
+    async $setDoc(_collectionName, _docId, _postData) {
       this.error = null
 
-      const docRef = await addDoc(collection(db, _collectionName), {
-        ..._postData,
-        created_datetime: serverTimestamp()
-      }).catch((_error) => {
-        this.error = _error.message
-        console.log('Create Post fail => ' + this.error)
-      })
+      await setDoc(doc(db, _collectionName, _docId), _postData).catch(
+        (_error) => {
+          this.error = _error.message
+          console.log('Create Post fail => ' + this.error)
+        }
+      )
     },
-    async $post(_collectionName, _postData) {
+    // doc id는 자동 생성
+    async $addDoc(_collectionName, _postData) {
       this.error = null
 
       // Add a new document with a generated id. (id 자동 생성)

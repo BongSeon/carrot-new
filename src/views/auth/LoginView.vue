@@ -90,18 +90,18 @@ export default {
       this.pending = true
 
       await this.$login(this.email, this.password)
+      this.pending = false
+
       if (this.error === null && this.loggedUser !== null) {
         // console.log(this.loggedUser.displayName)
         // console.log(this.loggedUser.email)
 
-        this.pending = false
         this.$store.commit('user/setUser', {
           displayName: this.loggedUser.displayName,
           email: this.loggedUser.email,
           uid: this.loggedUser.uid,
           photoURL: this.loggedUser.photoURL
         })
-
         this.$emit(
           'toastShow',
           this.loggedUser.displayName + '님 어서오세요. 환영합니다!'

@@ -44,8 +44,9 @@
 </template>
 <script>
 import UseAuth from '@/mixins/useAuth.js'
+import postDoc from '@/mixins/postDoc.js'
 export default {
-  mixins: [UseAuth],
+  mixins: [UseAuth, postDoc],
   components: {},
   data() {
     return {
@@ -79,9 +80,15 @@ export default {
 
       await this.$signup(this.email, this.password, this.displayName)
     },
-    afterSignup(user) {
+    async afterSignup(user) {
+      this.pending = false
       if (this.error === null && this.user !== null) {
-        this.pending = false
+        this.$setDoc('users', user.uid, {
+          display_name: user.displayName,
+          manner_temp: 36.5,
+          photo_url: user.photoURL,
+          place_main: '랜덤동'
+        })
         this.$store.commit('user/setUser', {
           displayName: user.displayName,
           email: user.email,
