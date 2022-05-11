@@ -45,12 +45,12 @@
 
 <script>
 import Drawer from '@/mixins/drawer.js'
-import UseAuth from '@/mixins/useAuth.js'
+import useAuth from '@/mixins/useAuth.js'
 import Signup from '@/views/auth/Signup.vue'
 import Spinner from '@/components/global/Spinner.vue'
 
 export default {
-  mixins: [Drawer, UseAuth],
+  mixins: [Drawer, useAuth],
   components: { Signup, Spinner },
   data() {
     return {
