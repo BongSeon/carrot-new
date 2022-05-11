@@ -6,7 +6,7 @@
     <section class="first">
       <div class="my-info-wrap">
         <div class="my-avatar-wrap" @click="$refs.file.click()">
-          <img class="my-avatar" :src="photoURL" alt="my avatar" />
+          <img class="my-avatar" :src="userInfo.photoURL" alt="my avatar" />
           <div class="my-avatar-over"></div>
           <input
             type="file"
@@ -17,8 +17,8 @@
           />
         </div>
         <div class="my-info">
-          <h1 class="display-name">{{ displayName }}</h1>
-          <p>{{ email }}</p>
+          <h1 class="display-name">{{ userInfo.displayName }}</h1>
+          <p>{{ userInfo.email }}</p>
         </div>
       </div>
       <button class="btn btn-primary btn-logout" @click="logout">
@@ -45,12 +45,17 @@
 <script>
 import useAuth from '@/mixins/useAuth.js'
 import useStorage from '@/mixins/useStorage.js'
+import postDoc from '@/mixins/postDoc.js'
 
 export default {
-  mixins: [useAuth, useStorage],
+  mixins: [useAuth, useStorage, postDoc],
   components: {},
   data() {
-    return { photoURL: '', displayName: '', email: '', uid: '', show: false }
+    return {
+      userInfo: { photoURL: '', displayName: '', email: '', uid: '' },
+      //  photoURL: '', displayName: '', email: '', uid: '',
+      show: false
+    }
   },
   setup() {},
   created() {
@@ -59,28 +64,30 @@ export default {
     }, 50)
   },
   async mounted() {
-    const user = this.$store.getters['user/userInfo']
-    console.log('user:', user)
-    this.displayName = user.displayName
-    this.email = user.email
-    this.uid = user.uid
-    this.photoURL = user.photoURL
+    this.userInfo = this.$store.getters['user/userInfo']
+    // console.log('user:', user)
+    this.$getCurrentUser()
   },
   unmounted() {},
   methods: {
     async uploadAvatar(files) {
-      console.log(files[0])
+      // console.log(files[0])
       const file = files[0]
-      const path = `avatars/${this.uid}/${file.name}`
+      const path = `avatars/${this.userInfo.uid}/${file.name}`
+      this.$uploadImage(file, path)
+    },
+    handleAfterImageUpload(url) {
+      this.photoURL = url
 
-      // const r = await this.$upload('/api/upload/image', files[0])
-      // console.log(r)
-      // if (type === 1) {
-      //   this.imgSrc = `http://localhost:3000/static/images/${r.filename}`
-      // } else {
-      //   this.imgSrc2 = `http://localhost:3000/static/images/${r.filename}`
-      // }
-      // this.product[`img${type}`] = r.filename
+      this.userInfo.photoURL = url
+      this.$store.commit('user/setUser', this.userInfo)
+
+      //upload한 이후 downloadURL을
+      // users 의  uid 에 해당하는 doc의 photo_url 여기에 업데이트 해줘야함
+      this.$updateDoc('users', this.userInfo.uid, { photo_url: url })
+      // Authentication 쪽에도 업데이트 해줘야함
+
+      this.$updateProfile(this.auth.currentUser, { photoURL: url })
     },
     logout() {
       this.$logout()

@@ -33,7 +33,7 @@ export default {
         return
       }
       // console.log(uid)
-      this.filePath = `products/${uid}/${file.name}`
+      // this.filePath = `products/${uid}/${file.name}`
       console.log('path: ', path)
 
       // Create a root reference
@@ -47,8 +47,8 @@ export default {
         .then((snapshot) => {
           console.log('blob(or file) upload 성공!')
 
-          console.log('getDownloadURL start')
-          getDownloadURL(ref(storage, this.filePath))
+          // console.log('getDownloadURL start')
+          getDownloadURL(ref(storage, path))
             .then((url) => {
               const xhr = new XMLHttpRequest()
               xhr.responseType = 'blob'

@@ -65,6 +65,12 @@ export default {
           this.error = _error.message
           console.log('User Create fail => ' + this.error)
         })
+    },
+    async $updateProfile(_currentUser, _obj) {
+      updateProfile(_currentUser, _obj).then(() => {
+        // Profile updated!
+        console.log('Profile updated!', _currentUser)
+      })
     }
   }
 }

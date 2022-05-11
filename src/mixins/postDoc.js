@@ -53,14 +53,24 @@ export default {
       // return docRef.id
     },
     // thumb_url 수정
-    async $updateThumbUrl(_collectionName, _some_id, _url) {
+    async $updateThumbUrl(_collectionName, _docId, _url) {
       this.error = null
 
-      const docRef = doc(db, _collectionName, _some_id)
+      const docRef = doc(db, _collectionName, _docId)
 
       const res = await updateDoc(docRef, {
         thumb_url: _url
       }).catch((_error) => {
+        this.error = _error.message
+        console.log('Update post fail => ' + this.error)
+      })
+    },
+    async $updateDoc(_collectionName, _docId, _obj) {
+      this.error = null
+
+      const docRef = doc(db, _collectionName, _docId)
+
+      const res = await updateDoc(docRef, _obj).catch((_error) => {
         this.error = _error.message
         console.log('Update post fail => ' + this.error)
       })
