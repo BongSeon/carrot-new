@@ -44,7 +44,6 @@
 
 <script>
 import useAuth from '@/mixins/useAuth.js'
-import useAuth from '@/mixins/useAuth.js'
 import useStorage from '@/mixins/useStorage.js'
 
 export default {

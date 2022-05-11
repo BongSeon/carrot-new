@@ -26,24 +26,20 @@ export default {
           console.log('Uh-oh, an error occurred!', error)
         })
     },
-    // storage에 썸네일 및 상품이미지 저장하는 함수
-    async $uploadImage(uid, file) {
-      if (!uid) {
-        console.log('No UID!')
-        return
-      }
+    // storage에 image 저장하고
+    async $uploadImage(file, path) {
       if (!file) {
-        console.log('No File Selected')
+        console.log('No File')
         return
       }
       // console.log(uid)
       this.filePath = `products/${uid}/${file.name}`
-      console.log(this.filePath)
+      console.log('path: ', path)
 
       // Create a root reference
       const storage = getStorage()
       // Create a reference to 'images/mountains.jpg'
-      const storageRef = ref(storage, this.filePath)
+      const storageRef = ref(storage, path)
 
       this.error = null
 
