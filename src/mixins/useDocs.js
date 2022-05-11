@@ -7,11 +7,15 @@ import {
   query,
   where,
   orderBy,
-  limit
+  limit,
+  deleteDoc
 } from 'firebase/firestore'
 
 export default {
   methods: {
+    async $deleteDoc(_collectionName, _docId) {
+      await deleteDoc(doc(db, _collectionName, _docId))
+    },
     async $getDocs(_collectionName, _orderBy = null) {
       const collectionRef = collection(db, _collectionName)
       let q = null
@@ -20,6 +24,20 @@ export default {
       } else {
         q = query(collectionRef, orderBy(_orderBy, 'desc'), limit(300))
       }
+
+      const docs = []
+      const querySnapshot = await getDocs(q)
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        // console.log(doc.id, ' => ', doc.data())
+        docs.push({ ...doc.data(), id: doc.id })
+      })
+
+      return docs
+    },
+    async $getDocsWhere(_collectionName, _field, _value) {
+      const collectionRef = collection(db, _collectionName)
+      let q = query(collectionRef, where(_field, '==', _value))
 
       const docs = []
       const querySnapshot = await getDocs(q)

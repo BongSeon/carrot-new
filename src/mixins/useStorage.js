@@ -12,7 +12,7 @@ export default {
     return { error: null, url: null, filePath: null, downloadURL: null }
   },
   methods: {
-    async $delete(filePath) {
+    async $deleteFile(filePath) {
       const storage = getStorage()
       // const storageRef = ref(storage, 'images/desert.jpg');
       const storageRef = ref(storage, filePath)
@@ -63,7 +63,7 @@ export default {
               // xhr.send()
 
               console.log('get downloadURL 성공! ', url)
-              this.handleAfterImageUpload(url)
+              this.handleAfterImageUpload(url, this.filePath)
               // Or inserted into an <img> element
               // const img = document.getElementById('myimg');
               // img.setAttribute('src', url);
@@ -76,33 +76,6 @@ export default {
         .catch((err) => {
           console.log(err.message)
           this.error = err.message
-        })
-    },
-    async $getDownloadURL(filePath) {
-      // Create a root reference
-      const storage = getStorage()
-
-      getDownloadURL(ref(storage, filePath))
-        .then((url) => {
-          const xhr = new XMLHttpRequest()
-          xhr.responseType = 'blob'
-          xhr.onload = (event) => {
-            const blob = xhr.response
-          }
-          xhr.open('GET', url)
-          // xhr.send()
-
-          console.log('get downloadURL 성공! ', url)
-          return url
-
-          // Or inserted into an <img> element
-          // const img = document.getElementById('myimg');
-          // img.setAttribute('src', url);
-        })
-        .catch((error) => {
-          // Handle any errors
-          console.log(error)
-          return null
         })
     },
     async $getAvartar(uid) {
@@ -132,5 +105,32 @@ export default {
           return null
         })
     }
+    // async $getDownloadURL(filePath) {
+    //   // Create a root reference
+    //   const storage = getStorage()
+
+    //   getDownloadURL(ref(storage, filePath))
+    //     .then((url) => {
+    //       const xhr = new XMLHttpRequest()
+    //       xhr.responseType = 'blob'
+    //       xhr.onload = (event) => {
+    //         const blob = xhr.response
+    //       }
+    //       xhr.open('GET', url)
+    //       // xhr.send()
+
+    //       console.log('get downloadURL 성공! ', url)
+    //       return url
+
+    //       // Or inserted into an <img> element
+    //       // const img = document.getElementById('myimg');
+    //       // img.setAttribute('src', url);
+    //     })
+    //     .catch((error) => {
+    //       // Handle any errors
+    //       console.log(error)
+    //       return null
+    //     })
+    // },
   }
 }

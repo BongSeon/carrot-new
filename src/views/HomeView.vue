@@ -48,13 +48,13 @@
 </template>
 
 <script>
-import GetDocs from '@/mixins/getDocs.js'
+import useDocs from '@/mixins/useDocs.js'
 import ProductCard from '@/components/ProductCard.vue'
 import PlaceDropdown from '@/components/PlaceDropdown.vue'
 import gsap from 'gsap'
 
 export default {
-  mixins: [GetDocs],
+  mixins: [useDocs],
   components: {
     ProductCard,
     PlaceDropdown

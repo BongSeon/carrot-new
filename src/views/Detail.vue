@@ -1,7 +1,7 @@
 <template>
   <div v-show="show" class="post-detail">
     <i class="btn-back fas fa-arrow-left" @click="close"></i>
-    <i class="btn-delete fas fa-trash-alt" @click="trash"></i>
+    <i v-if="isMyPost" class="btn-delete fas fa-trash-alt" @click="trash"></i>
 
     <!-- carousel  -->
     <Carousel :images="images" ref="carousel" />
@@ -52,22 +52,29 @@
   </div>
 </template>
 <script>
-import GetDocs from '@/mixins/getDocs.js'
+import useAuth from '@/mixins/useAuth.js'
+import useDocs from '@/mixins/useDocs.js'
 import Carousel from '@/components/Carousel.vue'
 import useStorage from '@/mixins/useStorage.js'
 
 export default {
-  mixins: [GetDocs, useStorage],
+  mixins: [useAuth, useDocs, useStorage],
   components: { Carousel },
   props: {},
   data() {
-    return { show: false, id: null, images: [], post: {}, postWriter: {} }
+    return {
+      show: false,
+      id: null,
+      images: [],
+      post: {},
+      postWriter: {},
+      isMyPost: false, // 내가 작성한 글일 경우 true
+      currentUser: null
+    }
   },
   setup() {},
   created() {
-    // console.log('created detail')
     this.id = this.$route.params.id
-    console.log(this.id)
 
     setTimeout(() => {
       this.show = true
@@ -77,7 +84,18 @@ export default {
     this.$refs.carousel.open(this.id)
     this.post = await this.$getDoc('posts', this.id)
     this.postWriter = await this.$getDoc('users', this.post.uid)
-    console.log(this.postWriter)
+
+    try {
+      const uid = this.$store.getters['user/userInfo'].uid
+      // 내가 작성한 글일 경우 true
+      if (this.post.uid === uid) {
+        console.log('내가 작성한 글')
+        this.isMyPost = true
+      }
+    } catch (error) {
+      console.log(error)
+      this.$router.push({ path: '/' })
+    }
   },
   beforeUnmount() {},
   unmounted() {},
@@ -87,9 +105,41 @@ export default {
       this.$router.push({ path: '/home' })
     },
     async trash() {
-      console.log('trash')
-      this.$delete('products/2WZiX994HJQti0orknoFJRYfMln1/fence.JPG')
-      // this.$delete('product-thumb-1.jpg')
+      await this.$getCurrentUser()
+      console.log(this.currentUser)
+
+      if (window.confirm('정말 삭제하시겠습니까?')) {
+        console.log('trash')
+        const product_id = this.id
+
+        // 1. storage/thumbnails 에서 삭제
+        console.log(this.post.thumb_path)
+        await this.$deleteFile(this.post.thumb_path)
+        // this.$deleteFile(`thumbnails/${this.post.uid}/~~~`)
+
+        // 3. firestore images 에서 product_id가 product_id인것들 모두 찾아서 삭제
+        const images = await this.$getDocsWhere(
+          'images',
+          'product_id',
+          product_id
+        )
+        // console.log(images)
+        images.forEach((image) => {
+          // 2. storage/products 에서 삭제
+          console.log(image.file_path)
+          //  await this.$deleteFile(`products/${this.post.uid}/~~~`)
+          this.$deleteFile(image.file_path)
+
+          console.log(image.id)
+          this.$deleteDoc('images', image.id)
+        })
+
+        // 4. firestore posts 에서 삭제
+        await this.$deleteDoc('posts', product_id)
+
+        this.$emit('toastShow', '게시글이 삭제되었습니다.')
+        this.$router.push({ path: '/home' })
+      }
     }
   }
 }

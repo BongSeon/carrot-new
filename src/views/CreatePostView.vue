@@ -87,8 +87,9 @@
 </template>
 <script>
 import { db } from '../firebase/config'
-import { getAuth } from 'firebase/auth'
+import useAuth from '@/mixins/useAuth.js'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import useStorage from '@/mixins/useStorage.js'
 import postDoc from '@/mixins/postDoc.js'
 import Spinner from '@/components/global/Spinner.vue'
@@ -97,7 +98,7 @@ import Toast from '@/components/global/Toast.vue'
 // allowed file types
 const types = ['image/png', 'image/jpeg', 'image/jpeg']
 export default {
-  mixins: [useStorage, postDoc],
+  mixins: [useAuth, useStorage, postDoc],
   components: { Spinner, Toast },
   data() {
     return {
@@ -110,8 +111,6 @@ export default {
         description: '',
         place: '랜덤동',
         thumb_url: null,
-        // thumb_url:
-        //   'http://mstatic1.e-himart.co.kr/contents/goods/00/03/53/78/59/0003537859__W43405B__1_640_640.jpg',
         chat_count: 0,
         favorate_count: 0,
         uid: ''
@@ -136,7 +135,11 @@ export default {
       this.show = true
     }, 50)
   },
-  mounted() {},
+  async mounted() {
+    await this.$getCurrentUser()
+    // const auth = await getAuth()
+    // console.log(auth)
+  },
   unmounted() {},
   methods: {
     backToHome() {
@@ -144,9 +147,6 @@ export default {
     },
     updateThumbUrl(doc_id, thumb_url) {
       const collection = 'posts'
-      // const doc_id = 'lEEhwaPcsWaZR36XcEtT'
-      // const thumb_url =
-      // 'https://firebasestorage.googleapis.com/v0/b/carrot-new.appspot.com/o/thumbnails%2F2WZiX994HJQti0orknoFJRYfMln1%2Fthumb-lEEhwaPcsWaZR36XcEtT.jpg?alt=media&token=b0f0d9c5-3011-42a8-81d2-92df0289dd38'
       this.$updateThumbUrl(collection, doc_id, thumb_url)
     },
     handleChange(e) {
@@ -154,6 +154,7 @@ export default {
       console.log(e.target.files)
 
       const selected = e.target.files[0]
+      console.log(selected.name)
 
       // 한번 더 파일타입 체크 하는 경우
       // if(selected && types.includes(selected.type))
@@ -173,64 +174,169 @@ export default {
         this.$refs.toast.open('항목을 모두 작성해주세요')
         return
       }
-      // const uid = this.$store.getters['user/userInfo'].uid
-      let uid = null
+      const uid = this.$store.getters['user/userInfo'].uid
+
       try {
-        const auth = await getAuth()
-        uid = auth.currentUser.uid
-        this.post.uid = uid
+        if (uid) {
+          this.post.uid = uid
+          this.uploadImage(this.post.uid, this.file)
+        }
       } catch (err) {
         console.log(err)
         this.$emit('toastShow', '잠시후 다시 시도해주세요.')
       }
-      await this.$uploadImage(uid, this.file)
-
-      // const downloadURL = await this.$getDownloadURL(this.filePath)
-      // await console.log(downloadURL)
-      // return
-      // if (!downloadURL) {
-      //   console.log('download url get fail!')
-      //   return
-      // }
     },
-    async handleAfterImageUpload(downloadURL) {
-      this.post.thumb_url = downloadURL
-      console.log(this.post)
+    async uploadImage(uid, file) {
+      if (!file) {
+        console.log('No File Selected')
+        return
+      }
+      const thumbFile = file
+      const prodFile = file
 
-      // await this.$postWithDatetime('posts', this.post)
-      const docRef = await addDoc(collection(db, 'posts'), {
-        ...this.post,
-        created_datetime: serverTimestamp()
-      }).catch((_error) => {
-        // this.error = _error.message
-        console.log('Create Post fail => ' + this.error)
-      })
-      console.log('Document written with ID: ', docRef.id)
+      // thumbnail filepath
+      const thumbPath = `thumbnails/${uid}/${thumbFile.name}`
 
-      const imageDocRef = await addDoc(collection(db, 'images'), {
+      // product filepath
+      const productsPath = `products/${uid}/${prodFile.name}`
+
+      const thumbStorage = getStorage()
+      const thumbStorageRef = ref(thumbStorage, thumbPath)
+
+      const productsStorage = getStorage()
+      const productsStorageRef = ref(productsStorage, productsPath)
+
+      this.error = null
+
+      // image 파일을 thumbnails 스토리지에 업로드
+      uploadBytes(thumbStorageRef, thumbFile)
+        .then((snapshot) => {
+          console.log('thumbFile uploaded!')
+
+          // console.log('getDownloadURL start')
+          getDownloadURL(ref(thumbStorage, thumbPath))
+            .then((url) => {
+              const xhr = new XMLHttpRequest()
+              xhr.responseType = 'blob'
+              xhr.onload = (event) => {
+                const blob = xhr.response
+              }
+              xhr.open('GET', url)
+              // xhr.send()
+              console.log('thumbFile get downloadURL ', url)
+              this.post.thumb_url = url
+
+              // image 파일을 products 스토리지에 업로드
+              uploadBytes(productsStorageRef, prodFile)
+                .then((snapshot) => {
+                  console.log('prodFile uploaded!')
+
+                  // console.log('getDownloadURL start')
+                  getDownloadURL(ref(productsStorage, productsPath))
+                    .then((url) => {
+                      const xhr = new XMLHttpRequest()
+                      xhr.responseType = 'blob'
+                      xhr.onload = (event) => {
+                        const blob = xhr.response
+                      }
+                      xhr.open('GET', url)
+                      // xhr.send()
+                      const prodURL = url
+                      console.log('prodFile get downloadURL ', prodURL)
+
+                      const postDoc = {
+                        ...this.post,
+                        thumb_path: thumbPath,
+                        created_datetime: serverTimestamp()
+                      }
+
+                      this.addDocToPostsAndImages(
+                        postDoc,
+                        prodURL,
+                        productsPath
+                      )
+                    })
+                    .catch((error) => {
+                      // Handle any errors
+                      console.log(error)
+                    })
+                })
+                .catch((err) => {
+                  console.log(err.message)
+                  // this.error = err.message
+                })
+
+              // Or inserted into an <img> element
+              // const img = document.getElementById('myimg');
+              // img.setAttribute('src', url);
+            })
+            .catch((error) => {
+              // Handle any errors
+              console.log(error)
+            })
+        })
+        .catch((err) => {
+          console.log(err.message)
+          // this.error = err.message
+        })
+    },
+    async addDocToPostsAndImages(postDoc, prodURL, productsPath) {
+      const docRef = await addDoc(collection(db, 'posts'), postDoc).catch(
+        (_error) => {
+          // this.error = _error.message
+          console.log('Create Post fail => ' + this.error)
+        }
+      )
+      console.log('posts 컬렉션에 doc을 생성했습니다 ID: ', docRef.id)
+
+      const imageDoc = {
         num: 1,
         product_id: docRef.id,
-        url: downloadURL,
-        post_title: this.post.title
-      }).catch((_error) => {
+        url: prodURL,
+        post_title: this.post.title,
+        file_path: productsPath
+      }
+      const imageDocRef = await addDoc(
+        collection(db, 'images'),
+        imageDoc
+      ).catch((_error) => {
         // this.error = _error.message
-        console.log('Create Post fail => ' + this.error)
+        console.log('Create Post fail => ' + _error)
       })
-      console.log('Document written Images with ID: ', imageDocRef.id)
+      console.log('images 컬렉션에 doc을 생성했습니다  ID: ', imageDocRef.id)
 
       this.$emit('toastShow', '게시글이 작성되었습니다.')
       this.$router.push({ path: '/home' })
     }
-    // async handleAfterPostCreated(productID, downloadURL) {
-    //   console.log('productID: ', {product_id: productID })
 
-    //   if (this.error !== null) {
-    //     console.log(this.error)
-    //     this.$emit('toastShow', '게시글이 작성에 실패했습니다.')
-    //   } else {
-    //     this.$emit('toastShow', '게시글이 작성되었습니다.')
-    //     this.$router.push({ path: '/home' })
-    //   }
+    // async handleAfterImageUpload(downloadURL, filePath) {
+    //   this.post.thumb_url = downloadURL
+    //   console.log(this.post)
+
+    //   // await this.$postWithDatetime('posts', this.post)
+    //   const docRef = await addDoc(collection(db, 'posts'), {
+    //     ...this.post,
+    //     created_datetime: serverTimestamp()
+    //   }).catch((_error) => {
+    //     // this.error = _error.message
+    //     console.log('Create Post fail => ' + this.error)
+    //   })
+    //   console.log('Document written with ID: ', docRef.id)
+
+    //   const imageDocRef = await addDoc(collection(db, 'images'), {
+    //     num: 1,
+    //     product_id: docRef.id,
+    //     url: downloadURL,
+    //     post_title: this.post.title,
+    //     file_path: filePath
+    //   }).catch((_error) => {
+    //     // this.error = _error.message
+    //     console.log('Create Post fail => ' + this.error)
+    //   })
+    //   console.log('Document written Images with ID: ', imageDocRef.id)
+
+    //   this.$emit('toastShow', '게시글이 작성되었습니다.')
+    //   this.$router.push({ path: '/home' })
     // }
   }
 }

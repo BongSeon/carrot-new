@@ -19,9 +19,9 @@
   </div>
 </template>
 <script>
-import GetDocs from '@/mixins/getDocs.js'
+import useDocs from '@/mixins/useDocs.js'
 export default {
-  mixins: [GetDocs],
+  mixins: [useDocs],
   components: {},
   props: {},
   data() {

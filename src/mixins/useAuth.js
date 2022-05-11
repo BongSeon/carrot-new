@@ -8,13 +8,11 @@ import {
 
 export default {
   data() {
-    return { error: null, loggedUser: null }
+    return { error: null, auth: null, loggedUser: null }
   },
   methods: {
     async $getCurrentUser() {
-      const auth = await getAuth()
-      console.log(auth.currentUser)
-      return auth.currentUser
+      this.auth = await getAuth()
     },
     async $logout() {
       const auth = getAuth()
