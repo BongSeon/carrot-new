@@ -5,7 +5,17 @@
     </slot-header>
     <section class="first">
       <div class="my-info-wrap">
-        <img class="my-avatar" :src="photoURL" alt="" />
+        <div class="my-avatar-wrap" @click="$refs.file.click()">
+          <img class="my-avatar" :src="photoURL" alt="my avatar" />
+          <div class="my-avatar-over"></div>
+          <input
+            type="file"
+            style="display: none"
+            ref="file"
+            accept="image/png, image/jpeg"
+            @change="uploadAvatar($event.target.files)"
+          />
+        </div>
         <div class="my-info">
           <h1 class="display-name">{{ displayName }}</h1>
           <p>{{ email }}</p>
@@ -33,10 +43,12 @@
 </template>
 
 <script>
-import UseAuth from '@/mixins/useAuth.js'
+import useAuth from '@/mixins/useAuth.js'
+import useAuth from '@/mixins/useAuth.js'
+import useStorage from '@/mixins/useStorage.js'
 
 export default {
-  mixins: [UseAuth],
+  mixins: [useAuth, useStorage],
   components: {},
   data() {
     return { photoURL: '', displayName: '', email: '', uid: '', show: false }
@@ -57,6 +69,20 @@ export default {
   },
   unmounted() {},
   methods: {
+    async uploadAvatar(files) {
+      console.log(files[0])
+      const file = files[0]
+      const path = `avatars/${this.uid}/${file.name}`
+
+      // const r = await this.$upload('/api/upload/image', files[0])
+      // console.log(r)
+      // if (type === 1) {
+      //   this.imgSrc = `http://localhost:3000/static/images/${r.filename}`
+      // } else {
+      //   this.imgSrc2 = `http://localhost:3000/static/images/${r.filename}`
+      // }
+      // this.product[`img${type}`] = r.filename
+    },
     logout() {
       this.$logout()
       this.$store.commit('user/logout')
@@ -69,4 +95,91 @@ export default {
 }
 </script>
 
-<style></style>
+<style scoped>
+/* mycarrot */
+.mycarrot section {
+  padding: 0;
+  padding: 10px;
+  /* background-color: antiquewhite; */
+  margin-bottom: 10px;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 1px 1px 6px rgb(0 0 0 / 10%);
+}
+.mycarrot section.first {
+  border-top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mycarrot section.second {
+  display: flex;
+  justify-content: space-evenly;
+}
+.mycarrot h1 {
+  margin: 0;
+}
+.mycarrot .my-avatar-wrap {
+  position: relative;
+  /* background-color: rgba(127, 255, 212, 0.342); */
+  width: 60px;
+  cursor: pointer;
+}
+.mycarrot .my-avatar {
+  width: 100%;
+  border-radius: 50%;
+}
+
+.mycarrot .my-avatar-over {
+  position: absolute;
+  content: '';
+  left: 0;
+  top: 0;
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  color: white;
+  font-size: 14px;
+  /* vertical-align: text-bottom; */
+}
+.mycarrot .my-avatar-over:hover {
+  background-color: rgba(0, 0, 0, 0.276);
+}
+.mycarrot .my-avatar-over:hover::after {
+  position: absolute;
+  background-color: rgba(8, 8, 8, 0.285);
+  content: '변경';
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  line-height: 36px;
+  left: 0;
+  top: 50%;
+  border-radius: 0 0 60px 60px;
+  width: 100%;
+  height: 50%;
+}
+.mycarrot .my-info-wrap {
+  display: flex;
+}
+.mycarrot .my-info {
+  padding-left: 10px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: left;
+}
+.mycarrot .my-info .display-name {
+  font-family: 'SuncheonB';
+  font-size: 18px;
+}
+.mycarrot .btn-logout {
+  height: 38px;
+}
+.mycarrot .btn-list {
+  background-color: transparent;
+}
+.mycarrot .btn-list img {
+  width: 72px;
+}
+</style>
