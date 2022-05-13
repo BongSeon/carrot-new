@@ -1,105 +1,139 @@
 <template>
-  <div v-show="show" class="createpost-wrap">
-    <header class="header">
-      <div class="header__close">
-        <button class="btn-close" @click="backToHome">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div class="header__title">중고거래 글쓰기</div>
+  <div>
+    <div v-show="show" class="createpost-wrap">
+      <header class="header">
+        <div class="header__left">
+          <button class="btn-close" @click="backToHome">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="header__center">중고거래 글쓰기</div>
 
-      <div class="header__buttons">
-        <button class="btn-submit" @click="submitPost">완료</button>
-      </div>
-    </header>
-    <main class="createpost notosanskr">
-      <section class="file">
-        <label for="imgfile">
-          <div class="btn-pic">
-            <img
-              class="icon"
-              src="@/assets/icons/camera-fill.svg"
-              alt="bell-icon"
-            />
-            <span>{{ files ? files.length : 0 }}/10</span>
-          </div></label
-        >
-        <div class="file-selected">
-          <div v-if="files.length > 1" class="error">
-            아직 하나의 파일 업로드만 지원합니다. 하나의 파일만 선택해주세요.
+        <div class="header__buttons">
+          <button class="btn-submit" @click="submitPost">완료</button>
+        </div>
+      </header>
+      <main class="createpost">
+        <section class="file">
+          <label for="imgfile">
+            <div class="btn-pic">
+              <img
+                class="icon"
+                src="@/assets/icons/camera-fill.svg"
+                alt="bell-icon"
+              />
+              <span>{{ files ? files.length : 0 }}/10</span>
+            </div></label
+          >
+          <div class="file-selected">
+            <div v-if="files.length > 1" class="error">
+              아직 하나의 파일 업로드만 지원합니다. 하나의 파일만 선택해주세요.
+            </div>
+            <div v-else>{{ file ? file.name : '선택된 파일이 없습니다.' }}</div>
           </div>
-          <div v-else>{{ file ? file.name : '선택된 파일이 없습니다.' }}</div>
-        </div>
 
-        <input
-          type="file"
-          id="imgfile"
-          @change="handleChange"
-          accept=".png, .jpg, .jpeg"
-          multiple
-        />
-      </section>
-      <section>
-        <input
-          type="text"
-          class="form-control"
-          placeholder="글제목"
-          v-model.trim="post.title"
-        />
-      </section>
-      <section>
-        <input
-          type="text"
-          class="form-control"
-          placeholder="카테고리 선택"
-          v-model.trim="post.category"
-        />
-      </section>
-      <section class="section-price">
-        <div class="input-price">
-          <span class="won-sign">₩</span>
           <input
-            v-number
-            type="text"
-            class="form-control form-control-price"
-            placeholder="가격 (선택사항)"
-            v-model.trim="post.price"
+            type="file"
+            id="imgfile"
+            @change="handleChange"
+            accept=".png, .jpg, .jpeg"
+            multiple
           />
-        </div>
-        <div class="input-price-offer">
-          <p>
-            <input type="checkbox" id="a" />
-            <label for="a">가격제안 받기</label>
-          </p>
-        </div>
-      </section>
-      <section class="section-description">
-        <textarea
-          type="text"
-          class="form-textarea"
-          placeholder="게시글 내용을 작성해주세요.(가품 및 판매금지품목은 게시가 제한될 수 있어요.)"
-          v-model.trim="post.description"
-        />
-      </section>
-    </main>
+        </section>
+        <section>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="글제목"
+            v-model.trim="post.title"
+          />
+        </section>
+        <section>
+          <div
+            class="btn btn-drawer"
+            v-if="post.category === ''"
+            @click="openCategories"
+          >
+            <span>카테고리 선택</span>
+            <span><i class="fas fa-chevron-right"></i></span>
+          </div>
+
+          <div v-else @click="openCategories">
+            {{ post.category }}
+          </div>
+          <!-- <input
+            type="text"
+            class="form-control"
+            placeholder="카테고리 선택"
+            v-model.trim="post.category"
+          /> -->
+          <!-- <div class="input-field">
+          <select class="form-select" name="loan_type" v-model="post.category">
+            <option value="주택담보대출">주택 담보 대출</option>
+            <option value="아파트담보대출" selected>아파트 담보대출</option>
+            <option value="공동명의지분대출">공동명의 지분대출</option>
+            <option value="무설정아파트신용대출">
+              무설정 아파트 신용 대출
+            </option>
+          </select>
+        </div> -->
+        </section>
+        <section class="section-price">
+          <div class="input-price">
+            <span class="won-sign">₩</span>
+            <input
+              v-number
+              type="text"
+              class="form-control form-control-price"
+              placeholder="가격 (선택사항)"
+              v-model.trim="post.price"
+            />
+          </div>
+          <div class="input-price-offer">
+            <p>
+              <input type="checkbox" id="a" />
+              <label for="a">가격제안 받기</label>
+            </p>
+          </div>
+        </section>
+        <section class="section-description">
+          <textarea
+            type="text"
+            class="form-textarea"
+            placeholder="게시글 내용을 작성해주세요.(가품 및 판매금지품목은 게시가 제한될 수 있어요.)"
+            v-model.trim="post.description"
+          />
+        </section>
+      </main>
+    </div>
+    <CategoryDrawer
+      :categories="categories"
+      @select="selectCategory"
+      @close="closeCategories"
+    />
     <Toast ref="toast" />
   </div>
 </template>
 <script>
-import { db } from '../firebase/config'
+import Drawer from '@/mixins/drawer.js'
 import useAuth from '@/mixins/useAuth.js'
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import useStorage from '@/mixins/useStorage.js'
+import useDocs from '@/mixins/useDocs.js'
 import postDoc from '@/mixins/postDoc.js'
+
 import Spinner from '@/components/global/Spinner.vue'
 import Toast from '@/components/global/Toast.vue'
+import CategoryDrawer from '@/components/CategoryDrawer.vue'
+
+import { db } from '../firebase/config'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
 // allowed file types
 const types = ['image/png', 'image/jpeg', 'image/jpeg']
 export default {
-  mixins: [useAuth, useStorage, postDoc],
-  components: { Spinner, Toast },
+  mixins: [useAuth, useStorage, useDocs, postDoc, Drawer],
+  components: { Spinner, Toast, CategoryDrawer },
   data() {
     return {
       show: false,
@@ -116,7 +150,8 @@ export default {
         uid: ''
       },
       files: [],
-      file: null
+      file: null,
+      categories: []
     }
   },
   directives: {
@@ -135,9 +170,25 @@ export default {
       this.show = true
     }, 50)
   },
-  mounted() {},
+  mounted() {
+    this.getCategories()
+  },
   unmounted() {},
   methods: {
+    async getCategories() {
+      this.categories = await this.$getDocs('category')
+      console.log(this.categories)
+    },
+    openCategories() {
+      this.$showDrawer('.category-drawer', '.createpost-wrap')
+    },
+    selectCategory(name) {
+      this.post.category = name
+      this.$closeDrawer('.category-drawer', '.createpost-wrap')
+    },
+    closeCategories() {
+      this.$closeDrawer('.category-drawer', '.createpost-wrap')
+    },
     backToHome() {
       this.$router.push({ path: '/home' })
     },
@@ -192,7 +243,6 @@ export default {
 
       // thumbnail filepath
       const thumbPath = `thumbnails/${uid}/${thumbFile.name}`
-
       // product filepath
       const productsPath = `products/${uid}/${prodFile.name}`
 
@@ -261,10 +311,6 @@ export default {
                   console.log(err.message)
                   // this.error = err.message
                 })
-
-              // Or inserted into an <img> element
-              // const img = document.getElementById('myimg');
-              // img.setAttribute('src', url);
             })
             .catch((error) => {
               // Handle any errors
@@ -304,36 +350,6 @@ export default {
       this.$emit('toastShow', '게시글이 작성되었습니다.')
       this.$router.push({ path: '/home' })
     }
-
-    // async handleAfterImageUpload(downloadURL, filePath) {
-    //   this.post.thumb_url = downloadURL
-    //   console.log(this.post)
-
-    //   // await this.$postWithDatetime('posts', this.post)
-    //   const docRef = await addDoc(collection(db, 'posts'), {
-    //     ...this.post,
-    //     created_datetime: serverTimestamp()
-    //   }).catch((_error) => {
-    //     // this.error = _error.message
-    //     console.log('Create Post fail => ' + this.error)
-    //   })
-    //   console.log('Document written with ID: ', docRef.id)
-
-    //   const imageDocRef = await addDoc(collection(db, 'images'), {
-    //     num: 1,
-    //     product_id: docRef.id,
-    //     url: downloadURL,
-    //     post_title: this.post.title,
-    //     file_path: filePath
-    //   }).catch((_error) => {
-    //     // this.error = _error.message
-    //     console.log('Create Post fail => ' + this.error)
-    //   })
-    //   console.log('Document written Images with ID: ', imageDocRef.id)
-
-    //   this.$emit('toastShow', '게시글이 작성되었습니다.')
-    //   this.$router.push({ path: '/home' })
-    // }
   }
 }
 </script>
@@ -417,10 +433,14 @@ input[type='file'] {
   height: 14px;
   line-height: 14px !important;
 }
+.input-price-offer {
+  padding-right: 4px;
+}
 .input-price-offer label {
   font-size: 14px;
 }
 .won-sign {
+  padding-left: 4px;
   color: var(--color-light-grey);
   font-family: Arial, Helvetica, Avenir, sans-serif;
 }
@@ -432,5 +452,11 @@ input[type='file'] {
 }
 .section-description input {
   width: 98%;
+}
+
+.btn-drawer {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 4px;
 }
 </style>
