@@ -16,7 +16,7 @@
       <main class="createpost">
         <section class="file">
           <label for="imgfile">
-            <div class="btn-pic">
+            <div class="pic btn-pic">
               <img
                 class="icon"
                 src="@/assets/icons/camera-fill.svg"
@@ -25,11 +25,25 @@
               <span>{{ files ? files.length : 0 }}/10</span>
             </div></label
           >
-          <div class="file-selected">
-            <div v-if="files.length > 1" class="error">
+          <img
+            v-for="thumb in thumbnails"
+            :key="thumb.filename"
+            class="pic img-pic"
+            :src="thumb.url"
+            :alt="thumb.filename"
+          />
+          <!-- <img
+            class="img-pic"
+            src="@/assets/img/thumbnails/product-thumb-2.jpg"
+            alt=""
+          /> -->
+          <!-- <div v-if="thumbnails.length > 0" class="file-selected">
+             <div v-if="files.length > 1" class="error">
               아직 하나의 파일 업로드만 지원합니다. 하나의 파일만 선택해주세요.
-            </div>
-            <div v-else>{{ file ? file.name : '선택된 파일이 없습니다.' }}</div>
+            </div> 
+          </div> -->
+          <div v-if="thumbnails.length < 1">
+            {{ file ? file.name : '선택된 파일이 없습니다.' }}
           </div>
 
           <input
@@ -151,7 +165,13 @@ export default {
       },
       files: [],
       file: null,
-      categories: []
+      categories: [],
+      thumbnails: [
+        // {
+        //   filename: '',
+        //   url: 'https://firebasestorage.googleapis.com/v0/b/carrot-new.appspot.com/o/thumbnails%2F2WZiX994HJQti0orknoFJRYfMln1%2Fdongle-gray.jpg?alt=media&token=8eebef8e-a77e-42c0-9e00-090631dd28ad'
+        // }
+      ]
     }
   },
   directives: {
@@ -172,12 +192,15 @@ export default {
   },
   mounted() {
     this.getCategories()
+    const uid = this.$store.getters['user/userInfo'].uid
+    this.post.uid = uid
   },
   unmounted() {},
   methods: {
+    async getThumbURL() {},
     async getCategories() {
       this.categories = await this.$getDocs('category')
-      console.log(this.categories)
+      // console.log(this.categories)
     },
     openCategories() {
       this.$showDrawer('.category-drawer', '.createpost-wrap')
@@ -192,46 +215,160 @@ export default {
     backToHome() {
       this.$router.push({ path: '/home' })
     },
-    updateThumbUrl(doc_id, thumb_url) {
-      const collection = 'posts'
-      this.$updateThumbUrl(collection, doc_id, thumb_url)
+    // updateThumbUrl(doc_id, thumb_url) {
+    //   const collection = 'posts'
+    //   this.$updateThumbUrl(collection, doc_id, thumb_url)
+    // },
+    handleAfter(i, url) {
+      this.thumbnails[i].url = url
     },
-    handleChange(e) {
-      this.files = e.target.files
-      console.log(e.target.files)
+    async handleChange(e) {
+      // this.files = e.target.files
+      // console.log(e.target.files)
 
-      const selected = e.target.files[0]
-      console.log(selected.name)
+      // const selected = e.target.files[0]
+      // console.log(selected.name)
+      const files = e.target.files
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        this.thumbnails.push({ name: file.name, url: '' })
+        const r = await this.uploadImage2(
+          this.post.uid,
+          file,
+          i,
+          this.handleAfter
+        )
+        console.log('r -> ', r)
+      }
+
+      for (let i = 0; i < this.thumbnails.length; i++) {
+        console.log(this.thumbnails[i])
+      }
+
+      // files.forEach((file) => {
+      //   console.log(file)
+      // })
 
       // 한번 더 파일타입 체크 하는 경우
       // if(selected && types.includes(selected.type))
-      if (selected) {
-        this.file = selected
-      } else {
-        this.file = null
-      }
+      // if (selected) {
+      //   this.file = selected
+      // } else {
+      //   this.file = null
+      // }
     },
     async submitPost() {
-      if (
-        this.post.title === '' ||
-        this.post.category === '' ||
-        this.post.price === null ||
-        this.post.description === ''
-      ) {
-        this.$refs.toast.open('항목을 모두 작성해주세요')
+      // validation check
+      // if (
+      //   this.post.title === '' ||
+      //   this.post.category === '' ||
+      //   this.post.price === null ||
+      //   this.post.description === ''
+      // ) {
+      //   this.$refs.toast.open('항목을 모두 작성해주세요')
+      //   return
+      // }
+      // 기존 코드
+      // const uid = this.$store.getters['user/userInfo'].uid
+      // try {
+      //   if (uid) {
+      //     this.post.uid = uid
+      //     this.uploadImage(this.post.uid, this.file)
+      //   }
+      // } catch (err) {
+      //   console.log(err)
+      //   this.$emit('toastShow', '잠시후 다시 시도해주세요.')
+      // }
+    },
+    async uploadImage2(uid, file, i, callback) {
+      if (!file) {
+        console.log('No File Selected')
         return
       }
-      const uid = this.$store.getters['user/userInfo'].uid
+      const thumbFile = file
+      const prodFile = file
 
-      try {
-        if (uid) {
-          this.post.uid = uid
-          this.uploadImage(this.post.uid, this.file)
-        }
-      } catch (err) {
-        console.log(err)
-        this.$emit('toastShow', '잠시후 다시 시도해주세요.')
-      }
+      // thumbnail filepath
+      const thumbPath = `thumbnails/${uid}/${thumbFile.name}`
+      // product filepath
+      // const productsPath = `products/${uid}/${prodFile.name}`
+
+      const thumbStorage = getStorage()
+      const thumbStorageRef = ref(thumbStorage, thumbPath)
+
+      // const productsStorage = getStorage()
+      // const productsStorageRef = ref(productsStorage, productsPath)
+
+      this.error = null
+
+      // image 파일을 thumbnails 스토리지에 업로드
+      uploadBytes(thumbStorageRef, thumbFile)
+        .then((snapshot) => {
+          console.log('thumbFile uploaded!')
+
+          // console.log('getDownloadURL start')
+          getDownloadURL(ref(thumbStorage, thumbPath))
+            .then((url) => {
+              const xhr = new XMLHttpRequest()
+              xhr.responseType = 'blob'
+              xhr.onload = (event) => {
+                const blob = xhr.response
+              }
+              xhr.open('GET', url)
+              // xhr.send()
+              console.log('thumbFile get downloadURL ', url)
+              // this.post.thumb_url = url
+              callback(i, url)
+
+              // // image 파일을 products 스토리지에 업로드
+              // uploadBytes(productsStorageRef, prodFile)
+              //   .then((snapshot) => {
+              //     console.log('prodFile uploaded!')
+
+              //     // console.log('getDownloadURL start')
+              //     getDownloadURL(ref(productsStorage, productsPath))
+              //       .then((url) => {
+              //         const xhr = new XMLHttpRequest()
+              //         xhr.responseType = 'blob'
+              //         xhr.onload = (event) => {
+              //           const blob = xhr.response
+              //         }
+              //         xhr.open('GET', url)
+              //         // xhr.send()
+              //         const prodURL = url
+              //         console.log('prodFile get downloadURL ', prodURL)
+
+              //         const postDoc = {
+              //           ...this.post,
+              //           thumb_path: thumbPath,
+              //           created_datetime: serverTimestamp()
+              //         }
+
+              //         this.addDocToPostsAndImages(
+              //           postDoc,
+              //           prodURL,
+              //           productsPath
+              //         )
+              //       })
+              //       .catch((error) => {
+              //         // Handle any errors
+              //         console.log(error)
+              //       })
+              //   })
+              //   .catch((err) => {
+              //     console.log(err.message)
+              //     // this.error = err.message
+              //   })
+            })
+            .catch((error) => {
+              // Handle any errors
+              console.log(error)
+            })
+        })
+        .catch((err) => {
+          console.log(err.message)
+          // this.error = err.message
+        })
     },
     async uploadImage(uid, file) {
       if (!file) {
@@ -374,24 +511,28 @@ section {
   padding: 14px 0;
   border-bottom: 1px solid var(--border-color);
 }
-section.file {
-  display: flex;
-  align-items: center;
-}
-.file-selected {
-  width: 200px;
-  padding-left: 8px;
-}
-
 .btn-submit {
   color: var(--primary);
 }
-.btn-pic {
-  cursor: pointer;
+
+section.file {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+/* .file-selected {
+  width: 200px;
+  padding-left: 8px;
+} */
+.pic {
   border: 1px solid var(--color-dark-white);
   border-radius: 4px;
   width: 70px;
   height: 70px;
+  margin: 0 4px 4px 0;
+}
+.btn-pic {
+  cursor: pointer;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -402,6 +543,10 @@ section.file {
 }
 .btn-pic span {
   font-size: 14px;
+}
+
+.img-pic {
+  display: flex;
 }
 
 .section-price {
