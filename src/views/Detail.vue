@@ -105,7 +105,6 @@ export default {
       this.$router.push({ path: '/home' })
     },
     async trash() {
-      await this.$getCurrentUser()
       console.log(this.currentUser)
 
       if (window.confirm('정말 삭제하시겠습니까?')) {

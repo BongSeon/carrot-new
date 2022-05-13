@@ -65,8 +65,6 @@ export default {
   },
   async mounted() {
     this.userInfo = this.$store.getters['user/userInfo']
-    // console.log('user:', user)
-    this.$getCurrentUser()
   },
   unmounted() {},
   methods: {

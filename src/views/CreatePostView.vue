@@ -135,11 +135,7 @@ export default {
       this.show = true
     }, 50)
   },
-  async mounted() {
-    await this.$getCurrentUser()
-    // const auth = await getAuth()
-    // console.log(auth)
-  },
+  mounted() {},
   unmounted() {},
   methods: {
     backToHome() {

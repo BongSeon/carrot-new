@@ -10,8 +10,11 @@ export default {
   data() {
     return { error: null, auth: null, loggedUser: null }
   },
+  mounted() {
+    this.$getAuth()
+  },
   methods: {
-    async $getCurrentUser() {
+    async $getAuth() {
       this.auth = await getAuth()
     },
     async $logout() {
@@ -29,10 +32,8 @@ export default {
       this.error = null
       this.loggedUser = null
 
-      const auth = getAuth()
-
       // Signed in
-      await signInWithEmailAndPassword(auth, email, password)
+      await signInWithEmailAndPassword(this.auth, email, password)
         .then((userCredential) => {
           this.loggedUser = userCredential.user
           // console.log('loggedUser:', this.loggedUser)
@@ -45,18 +46,16 @@ export default {
     async $signup(email, password, displayName) {
       this.error = null
 
-      const auth = getAuth()
-
-      await createUserWithEmailAndPassword(auth, email, password)
+      await createUserWithEmailAndPassword(this.auth, email, password)
         .then((userCredential) => {
           // Signed in
-          updateProfile(auth.currentUser, {
+          updateProfile(this.auth.currentUser, {
             displayName: displayName,
             photoURL:
               'https://firebasestorage.googleapis.com/v0/b/carrot-new.appspot.com/o/dongle-gray.jpg?alt=media&token=c5bb5ab2-5e34-4dfd-90cf-d1cb1e2419c1'
           }).then(() => {
             // Profile updated!
-            console.log('Profile updated!', auth.currentUser)
+            console.log('Profile updated! ', this.auth.currentUser)
             const user = userCredential.user
             this.afterSignup(user)
           })
