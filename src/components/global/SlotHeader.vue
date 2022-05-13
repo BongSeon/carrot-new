@@ -1,7 +1,11 @@
 <template>
   <header class="header">
-    <div class="header__title">
-      <slot name="title"></slot>
+    <div class="header__left">
+      <slot name="left"></slot>
+    </div>
+
+    <div class="header__center">
+      <slot name="center"></slot>
     </div>
 
     <div class="header__buttons">
@@ -35,12 +39,13 @@ export default {
 .header button {
   background-color: transparent;
 }
-.header__title {
+.header__left,
+.header__center {
   font-size: 20px;
   font-weight: bold;
 }
 .header__buttons {
-  width: 200px;
+  min-width: 20px;
   display: flex;
   justify-content: flex-end;
 }

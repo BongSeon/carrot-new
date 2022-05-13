@@ -1,7 +1,7 @@
 <template>
   <div v-show="show" class="life-wrap">
-    <slot-header page="life">
-      <template v-slot:title>동네 생활</template>
+    <slot-header>
+      <template v-slot:left>동네 생활</template>
     </slot-header>
     <main class="life">
       <div>

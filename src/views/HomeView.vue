@@ -2,7 +2,7 @@
   <div class="home__wrap">
     <div class="home">
       <slot-header page="home">
-        <template v-slot:title>
+        <template v-slot:left>
           <place-dropdown />
         </template>
 

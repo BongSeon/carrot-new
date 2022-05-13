@@ -1,7 +1,7 @@
 <template>
   <div class="mycarrot" v-show="show">
     <slot-header>
-      <template v-slot:title> 나의 당근 </template>
+      <template v-slot:left> 나의 당근 </template>
     </slot-header>
     <section class="first">
       <div class="my-info-wrap">

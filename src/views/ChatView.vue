@@ -1,7 +1,7 @@
 <template>
   <div v-show="show" class="chat-wrap">
     <slot-header page="chat">
-      <template v-slot:title>채팅 목록</template>
+      <template v-slot:left>채팅 목록</template>
     </slot-header>
     <main class="chat">
       <div>
