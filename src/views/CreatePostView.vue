@@ -26,23 +26,13 @@
             </div></label
           >
           <img
-            v-for="thumb in thumbnails"
-            :key="thumb.filename"
+            v-for="image in images"
+            :key="image.filename"
             class="pic img-pic"
-            :src="thumb.url"
-            :alt="thumb.filename"
+            :src="image.url"
+            :alt="image.filename"
           />
-          <!-- <img
-            class="img-pic"
-            src="@/assets/img/thumbnails/product-thumb-2.jpg"
-            alt=""
-          /> -->
-          <!-- <div v-if="thumbnails.length > 0" class="file-selected">
-             <div v-if="files.length > 1" class="error">
-              아직 하나의 파일 업로드만 지원합니다. 하나의 파일만 선택해주세요.
-            </div> 
-          </div> -->
-          <div v-if="thumbnails.length < 1">
+          <div v-if="images.length < 1">
             {{ file ? file.name : '선택된 파일이 없습니다.' }}
           </div>
 
@@ -75,22 +65,6 @@
           <div v-else @click="openCategories">
             {{ post.category }}
           </div>
-          <!-- <input
-            type="text"
-            class="form-control"
-            placeholder="카테고리 선택"
-            v-model.trim="post.category"
-          /> -->
-          <!-- <div class="input-field">
-          <select class="form-select" name="loan_type" v-model="post.category">
-            <option value="주택담보대출">주택 담보 대출</option>
-            <option value="아파트담보대출" selected>아파트 담보대출</option>
-            <option value="공동명의지분대출">공동명의 지분대출</option>
-            <option value="무설정아파트신용대출">
-              무설정 아파트 신용 대출
-            </option>
-          </select>
-        </div> -->
         </section>
         <section class="section-price">
           <div class="input-price">
@@ -143,6 +117,9 @@ import { db } from '../firebase/config'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
+// And then import in whichever component you like in this way:
+import resizeImage from '@/plugins/image-resize.js'
+
 // allowed file types
 const types = ['image/png', 'image/jpeg', 'image/jpeg']
 export default {
@@ -158,7 +135,6 @@ export default {
         price_offer_yn: false,
         description: '',
         place: '랜덤동',
-        thumb_url: null,
         chat_count: 0,
         favorate_count: 0,
         uid: ''
@@ -166,10 +142,11 @@ export default {
       files: [],
       file: null,
       categories: [],
-      thumbnails: [
+      thumbnail: null,
+      images: [
         // {
         //   filename: '',
-        //   url: 'https://firebasestorage.googleapis.com/v0/b/carrot-new.appspot.com/o/thumbnails%2F2WZiX994HJQti0orknoFJRYfMln1%2Fdongle-gray.jpg?alt=media&token=8eebef8e-a77e-42c0-9e00-090631dd28ad'
+        //   url: ''
         // }
       ]
     }
@@ -191,9 +168,13 @@ export default {
     }, 50)
   },
   mounted() {
-    this.getCategories()
-    const uid = this.$store.getters['user/userInfo'].uid
-    this.post.uid = uid
+    try {
+      this.getCategories()
+      const uid = this.$store.getters['user/userInfo'].uid
+      this.post.uid = uid
+    } catch (error) {
+      this.$router.push({ path: '/' })
+    }
   },
   unmounted() {},
   methods: {
@@ -219,247 +200,79 @@ export default {
     //   const collection = 'posts'
     //   this.$updateThumbUrl(collection, doc_id, thumb_url)
     // },
-    handleAfter(i, url) {
-      this.thumbnails[i].url = url
+
+    handleAfterImageUpload(i, url) {
+      if (i < 0) {
+        this.thumbnail.url = url
+      } else if (i >= 0) {
+        this.images[i].url = url
+      }
     },
+    // file 선택이 변경될때마다 호출
+    // e.target.files 의 모든 file들은 products 에 저장
+    // file[0] 은 썸네일 이미지로 따로 저장
     async handleChange(e) {
+      this.thumbnail = null
+      this.images = []
       // this.files = e.target.files
       // console.log(e.target.files)
 
       // const selected = e.target.files[0]
       // console.log(selected.name)
       const files = e.target.files
+      const file = files[0]
+
+      console.log(file)
+
       for (let i = 0; i < files.length; i++) {
+        // 썸네일 이미지 업로드
         const file = files[i]
-        this.thumbnails.push({ name: file.name, url: '' })
-        const r = await this.uploadImage2(
-          this.post.uid,
-          file,
-          i,
-          this.handleAfter
-        )
-        console.log('r -> ', r)
+        if (i === 0) {
+          resizeImage({ file: file, maxSize: 128 })
+            .then((resizedImage) => {
+              const path = `thumbnails/${this.post.uid}/${file.name}`
+              // console.log(resizedImage)
+              this.thumbnail = { name: file.name, path: path, url: '' }
+              this.$uploadImage(
+                path,
+                resizedImage,
+                -1,
+                this.handleAfterImageUpload
+              ) // -1 전달
+            })
+            .catch((err) => {
+              console.error(err)
+            })
+        }
+
+        const path = `images/${this.post.uid}/${file.name}`
+        this.images.push({ name: file.name, path: path, url: '' })
+        this.$uploadImage(path, file, i, this.handleAfterImageUpload)
       }
-
-      for (let i = 0; i < this.thumbnails.length; i++) {
-        console.log(this.thumbnails[i])
-      }
-
-      // files.forEach((file) => {
-      //   console.log(file)
-      // })
-
-      // 한번 더 파일타입 체크 하는 경우
-      // if(selected && types.includes(selected.type))
-      // if (selected) {
-      //   this.file = selected
-      // } else {
-      //   this.file = null
-      // }
     },
     async submitPost() {
       // validation check
-      // if (
-      //   this.post.title === '' ||
-      //   this.post.category === '' ||
-      //   this.post.price === null ||
-      //   this.post.description === ''
-      // ) {
-      //   this.$refs.toast.open('항목을 모두 작성해주세요')
-      //   return
-      // }
-      // 기존 코드
-      // const uid = this.$store.getters['user/userInfo'].uid
-      // try {
-      //   if (uid) {
-      //     this.post.uid = uid
-      //     this.uploadImage(this.post.uid, this.file)
-      //   }
-      // } catch (err) {
-      //   console.log(err)
-      //   this.$emit('toastShow', '잠시후 다시 시도해주세요.')
-      // }
-    },
-    async uploadImage2(uid, file, i, callback) {
-      if (!file) {
-        console.log('No File Selected')
+      if (
+        this.post.title === '' ||
+        this.post.category === '' ||
+        this.post.price === null ||
+        this.post.description === ''
+      ) {
+        this.$refs.toast.open('항목을 모두 작성해주세요')
         return
       }
-      const thumbFile = file
-      const prodFile = file
-
-      // thumbnail filepath
-      const thumbPath = `thumbnails/${uid}/${thumbFile.name}`
-      // product filepath
-      // const productsPath = `products/${uid}/${prodFile.name}`
-
-      const thumbStorage = getStorage()
-      const thumbStorageRef = ref(thumbStorage, thumbPath)
-
-      // const productsStorage = getStorage()
-      // const productsStorageRef = ref(productsStorage, productsPath)
-
-      this.error = null
-
-      // image 파일을 thumbnails 스토리지에 업로드
-      uploadBytes(thumbStorageRef, thumbFile)
-        .then((snapshot) => {
-          console.log('thumbFile uploaded!')
-
-          // console.log('getDownloadURL start')
-          getDownloadURL(ref(thumbStorage, thumbPath))
-            .then((url) => {
-              const xhr = new XMLHttpRequest()
-              xhr.responseType = 'blob'
-              xhr.onload = (event) => {
-                const blob = xhr.response
-              }
-              xhr.open('GET', url)
-              // xhr.send()
-              console.log('thumbFile get downloadURL ', url)
-              // this.post.thumb_url = url
-              callback(i, url)
-
-              // // image 파일을 products 스토리지에 업로드
-              // uploadBytes(productsStorageRef, prodFile)
-              //   .then((snapshot) => {
-              //     console.log('prodFile uploaded!')
-
-              //     // console.log('getDownloadURL start')
-              //     getDownloadURL(ref(productsStorage, productsPath))
-              //       .then((url) => {
-              //         const xhr = new XMLHttpRequest()
-              //         xhr.responseType = 'blob'
-              //         xhr.onload = (event) => {
-              //           const blob = xhr.response
-              //         }
-              //         xhr.open('GET', url)
-              //         // xhr.send()
-              //         const prodURL = url
-              //         console.log('prodFile get downloadURL ', prodURL)
-
-              //         const postDoc = {
-              //           ...this.post,
-              //           thumb_path: thumbPath,
-              //           created_datetime: serverTimestamp()
-              //         }
-
-              //         this.addDocToPostsAndImages(
-              //           postDoc,
-              //           prodURL,
-              //           productsPath
-              //         )
-              //       })
-              //       .catch((error) => {
-              //         // Handle any errors
-              //         console.log(error)
-              //       })
-              //   })
-              //   .catch((err) => {
-              //     console.log(err.message)
-              //     // this.error = err.message
-              //   })
-            })
-            .catch((error) => {
-              // Handle any errors
-              console.log(error)
-            })
-        })
-        .catch((err) => {
-          console.log(err.message)
-          // this.error = err.message
-        })
-    },
-    async uploadImage(uid, file) {
-      if (!file) {
-        console.log('No File Selected')
+      if (this.images.length < 1) {
+        this.$refs.toast.open('이미지를 첨부해주세요')
         return
       }
-      const thumbFile = file
-      const prodFile = file
 
-      // thumbnail filepath
-      const thumbPath = `thumbnails/${uid}/${thumbFile.name}`
-      // product filepath
-      const productsPath = `products/${uid}/${prodFile.name}`
+      const postDoc = {
+        ...this.post,
+        thumb_path: this.thumbnail.path,
+        thumb_url: this.thumbnail.url,
+        created_datetime: serverTimestamp()
+      }
 
-      const thumbStorage = getStorage()
-      const thumbStorageRef = ref(thumbStorage, thumbPath)
-
-      const productsStorage = getStorage()
-      const productsStorageRef = ref(productsStorage, productsPath)
-
-      this.error = null
-
-      // image 파일을 thumbnails 스토리지에 업로드
-      uploadBytes(thumbStorageRef, thumbFile)
-        .then((snapshot) => {
-          console.log('thumbFile uploaded!')
-
-          // console.log('getDownloadURL start')
-          getDownloadURL(ref(thumbStorage, thumbPath))
-            .then((url) => {
-              const xhr = new XMLHttpRequest()
-              xhr.responseType = 'blob'
-              xhr.onload = (event) => {
-                const blob = xhr.response
-              }
-              xhr.open('GET', url)
-              // xhr.send()
-              console.log('thumbFile get downloadURL ', url)
-              this.post.thumb_url = url
-
-              // image 파일을 products 스토리지에 업로드
-              uploadBytes(productsStorageRef, prodFile)
-                .then((snapshot) => {
-                  console.log('prodFile uploaded!')
-
-                  // console.log('getDownloadURL start')
-                  getDownloadURL(ref(productsStorage, productsPath))
-                    .then((url) => {
-                      const xhr = new XMLHttpRequest()
-                      xhr.responseType = 'blob'
-                      xhr.onload = (event) => {
-                        const blob = xhr.response
-                      }
-                      xhr.open('GET', url)
-                      // xhr.send()
-                      const prodURL = url
-                      console.log('prodFile get downloadURL ', prodURL)
-
-                      const postDoc = {
-                        ...this.post,
-                        thumb_path: thumbPath,
-                        created_datetime: serverTimestamp()
-                      }
-
-                      this.addDocToPostsAndImages(
-                        postDoc,
-                        prodURL,
-                        productsPath
-                      )
-                    })
-                    .catch((error) => {
-                      // Handle any errors
-                      console.log(error)
-                    })
-                })
-                .catch((err) => {
-                  console.log(err.message)
-                  // this.error = err.message
-                })
-            })
-            .catch((error) => {
-              // Handle any errors
-              console.log(error)
-            })
-        })
-        .catch((err) => {
-          console.log(err.message)
-          // this.error = err.message
-        })
-    },
-    async addDocToPostsAndImages(postDoc, prodURL, productsPath) {
       const docRef = await addDoc(collection(db, 'posts'), postDoc).catch(
         (_error) => {
           // this.error = _error.message
@@ -468,21 +281,26 @@ export default {
       )
       console.log('posts 컬렉션에 doc을 생성했습니다 ID: ', docRef.id)
 
-      const imageDoc = {
-        num: 1,
-        product_id: docRef.id,
-        url: prodURL,
-        post_title: this.post.title,
-        file_path: productsPath
+      for (let i = 0; i < this.images.length; i++) {
+        const imageDoc = {
+          num: i,
+          product_id: docRef.id,
+          post_title: this.post.title,
+          file_path: this.images[i].path,
+          url: this.images[i].url
+        }
+        const imageDocRef = await addDoc(
+          collection(db, 'images'),
+          imageDoc
+        ).catch((_error) => {
+          // this.error = _error.message
+          console.log('Create Post fail => ' + _error)
+        })
+        console.log(
+          i + ': images 컬렉션에 doc을 생성했습니다  ID: ',
+          imageDocRef.id
+        )
       }
-      const imageDocRef = await addDoc(
-        collection(db, 'images'),
-        imageDoc
-      ).catch((_error) => {
-        // this.error = _error.message
-        console.log('Create Post fail => ' + _error)
-      })
-      console.log('images 컬렉션에 doc을 생성했습니다  ID: ', imageDocRef.id)
 
       this.$emit('toastShow', '게시글이 작성되었습니다.')
       this.$router.push({ path: '/home' })
@@ -520,10 +338,6 @@ section.file {
   align-items: center;
   flex-wrap: wrap;
 }
-/* .file-selected {
-  width: 200px;
-  padding-left: 8px;
-} */
 .pic {
   border: 1px solid var(--color-dark-white);
   border-radius: 4px;

@@ -26,26 +26,21 @@ export default {
           console.log('Uh-oh, an error occurred!', error)
         })
     },
-    // storage에 image 저장하고
-    async $uploadImage(file, path) {
+    async $uploadImage(path, file, i, callback = null) {
       if (!file) {
-        console.log('No File')
+        console.log('No File Selected')
         return
       }
-      // console.log(uid)
-      // this.filePath = `products/${uid}/${file.name}`
-      console.log('path: ', path)
 
-      // Create a root reference
       const storage = getStorage()
-      // Create a reference to 'images/mountains.jpg'
       const storageRef = ref(storage, path)
 
       this.error = null
 
+      // image 파일을 thumbnails 스토리지에 업로드
       uploadBytes(storageRef, file)
         .then((snapshot) => {
-          console.log('blob(or file) upload 성공!')
+          console.log('file uploaded!')
 
           // console.log('getDownloadURL start')
           getDownloadURL(ref(storage, path))
@@ -57,12 +52,11 @@ export default {
               }
               xhr.open('GET', url)
               // xhr.send()
-
-              console.log('get downloadURL 성공! ', url)
-              this.handleAfterImageUpload(url, this.filePath)
-              // Or inserted into an <img> element
-              // const img = document.getElementById('myimg');
-              // img.setAttribute('src', url);
+              console.log('get downloadURL ', url)
+              // this.post.thumb_url = url
+              if (callback) {
+                callback(i, url)
+              }
             })
             .catch((error) => {
               // Handle any errors
@@ -71,7 +65,7 @@ export default {
         })
         .catch((err) => {
           console.log(err.message)
-          this.error = err.message
+          // this.error = err.message
         })
     },
     async $getAvartar(uid) {

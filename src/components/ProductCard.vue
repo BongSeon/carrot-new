@@ -34,7 +34,7 @@ export default {
   border-top: 1px solid rgba(0, 0, 0, 0.12);
   padding: 14px 0;
   display: flex;
-  height: 130px;
+  height: 128px;
   position: relative;
   cursor: pointer;
 }
