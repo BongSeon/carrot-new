@@ -2,11 +2,14 @@
   <div>
     <div v-show="show" class="createpost-wrap">
       <header class="header">
-        <div class="header__left">
-          <button class="btn-close" @click="backToHome">
-            <i class="fas fa-times"></i>
-          </button>
+        <div class="header__left" @click="backToHome">
+          <img
+            class="icon-cross"
+            src="@/assets/icons/close_icon_black2.svg"
+            alt="close-icon"
+          />
         </div>
+
         <div class="header__center">중고거래 글쓰기</div>
 
         <div class="header__buttons">
@@ -43,6 +46,13 @@
             accept=".png, .jpg, .jpeg"
             multiple
           />
+
+          <!-- <img
+            v-if="thumbnail"
+            class=""
+            :src="thumbnail.url"
+            :alt="thumbnail.filename"
+          /> -->
         </section>
         <section>
           <input
@@ -66,7 +76,7 @@
             {{ post.category }}
           </div>
         </section>
-        <section class="section-price">
+        <section class="price">
           <div class="input-price">
             <span class="won-sign">₩</span>
             <input
@@ -119,6 +129,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
 // And then import in whichever component you like in this way:
 import resizeImage from '@/plugins/image-resize.js'
+import resizeImageSquare from '@/plugins/image-resize-square.js'
 
 // allowed file types
 const types = ['image/png', 'image/jpeg', 'image/jpeg']
@@ -142,7 +153,7 @@ export default {
       files: [],
       file: null,
       categories: [],
-      thumbnail: null,
+      thumbnail: { filename: '', url: '' },
       images: [
         // {
         //   filename: '',
@@ -222,32 +233,41 @@ export default {
       const files = e.target.files
       const file = files[0]
 
-      console.log(file)
+      // console.log(file)
+      // 썸네일 이미지 업로드
+      resizeImageSquare({ file: file, maxSize: 192, square: true })
+        .then((resizedImage) => {
+          const path = `thumbnails/${this.post.uid}/${file.name}`
+          // console.log(resizedImage)
+          // console.log(URL.createObjectURL(resizedImage))
 
+          // 미리보기 이미지 url을 사용하고 싶을 경우 아래 코드를 사용
+          // const url = URL.createObjectURL(resizedImage)
+
+          this.thumbnail = { name: file.name, path: path, url: '' }
+          this.$uploadImage(path, resizedImage, -1, this.handleAfterImageUpload) // -1 전달(썸네일 표시)
+        })
+        .catch((err) => {
+          console.error(err)
+        })
+
+      // products 이미지 업로드
       for (let i = 0; i < files.length; i++) {
-        // 썸네일 이미지 업로드
         const file = files[i]
-        if (i === 0) {
-          resizeImage({ file: file, maxSize: 128 })
-            .then((resizedImage) => {
-              const path = `thumbnails/${this.post.uid}/${file.name}`
-              // console.log(resizedImage)
-              this.thumbnail = { name: file.name, path: path, url: '' }
-              this.$uploadImage(
-                path,
-                resizedImage,
-                -1,
-                this.handleAfterImageUpload
-              ) // -1 전달
-            })
-            .catch((err) => {
-              console.error(err)
-            })
-        }
-
-        const path = `images/${this.post.uid}/${file.name}`
-        this.images.push({ name: file.name, path: path, url: '' })
-        this.$uploadImage(path, file, i, this.handleAfterImageUpload)
+        resizeImage({ file: file, maxSize: 512, square: false })
+          .then((resizedImage) => {
+            const path = `images/${this.post.uid}/${file.name}`
+            this.images.push({ name: file.name, path: path, url: '' })
+            this.$uploadImage(
+              path,
+              resizedImage,
+              i,
+              this.handleAfterImageUpload
+            )
+          })
+          .catch((err) => {
+            console.error(err)
+          })
       }
     },
     async submitPost() {
@@ -309,6 +329,19 @@ export default {
 }
 </script>
 <style scoped>
+.header__left {
+  padding-left: 0 4px;
+  height: 100%;
+  width: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+.icon-cross {
+  width: 18px;
+}
+
 .header .header__buttons {
   width: auto;
 }
@@ -363,10 +396,11 @@ section.file {
   display: flex;
 }
 
-.section-price {
+section.price {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
 }
 input[id='a'] + label {
   cursor: pointer;
@@ -377,7 +411,7 @@ input[type='checkbox'] {
   cursor: pointer;
   position: relative;
   top: 2px;
-  margin-right: 2px;
+  margin-right: 4px;
 }
 input[type='file'] {
   visibility: hidden;
@@ -417,5 +451,16 @@ input[type='file'] {
   display: flex;
   justify-content: space-between;
   padding: 8px 4px;
+}
+
+@media (max-width: 480px) {
+  .input-price,
+  .input-price-offer {
+    width: 100%;
+  }
+  .input-price-offer {
+    margin-left: 4px;
+    margin-top: 10px;
+  }
 }
 </style>
