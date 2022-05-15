@@ -193,7 +193,7 @@ export default {
   methods: {
     async getThumbURL() {},
     async getCategories() {
-      const docs = await this.$getDocs('category')
+      const docs = await this.$getDocs('categories')
       docs.forEach((doc) => {
         this.categories.push({ ...doc, selected: false })
       })
