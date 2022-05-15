@@ -2,9 +2,10 @@
   <div class="category-drawer drawer full-screen">
     <slot-header>
       <template v-slot:left>
-        <button class="btn-close" @click="closeDrawer">
-          <i class="fas fa-arrow-left"></i>
-        </button>
+        <i
+          class="btn-back fas fa-arrow-left text-black"
+          @click="closeDrawer"
+        ></i>
       </template>
       <template v-slot:center>카테고리 선택 </template>
     </slot-header>
@@ -12,7 +13,8 @@
       <section
         v-for="category in categories"
         :key="category.id"
-        @click="handleClick(category.name)"
+        @click="handleClick(category.id)"
+        :class="{ 'text-primary': category.selected }"
       >
         {{ category.name }}
       </section>
@@ -42,8 +44,8 @@ export default {
     closeDrawer() {
       this.$emit('close')
     },
-    handleClick(name) {
-      this.$emit('select', name)
+    handleClick(id) {
+      this.$emit('select', id)
     }
   }
 }

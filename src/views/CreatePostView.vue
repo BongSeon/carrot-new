@@ -13,7 +13,10 @@
         <div class="header__center">중고거래 글쓰기</div>
 
         <div class="header__buttons">
-          <button class="btn-submit" @click="submitPost">완료</button>
+          <button v-show="!pending" class="btn-submit" @click="submitPost">
+            완료
+          </button>
+          <spinner v-show="pending" />
         </div>
       </header>
       <main class="createpost">
@@ -63,18 +66,16 @@
           />
         </section>
         <section>
-          <div
-            class="btn btn-drawer"
-            v-if="post.category === ''"
-            @click="openCategories"
-          >
-            <span>카테고리 선택</span>
+          <div class="btn btn-drawer" @click="openCategories">
+            <span>
+              {{ post.category === '' ? '카테고리 선택' : post.category }}
+            </span>
             <span><i class="fas fa-chevron-right"></i></span>
           </div>
 
-          <div v-else @click="openCategories">
+          <!-- <div v-else @click="openCategories">
             {{ post.category }}
-          </div>
+          </div> -->
         </section>
         <section class="price">
           <div class="input-price">
@@ -159,7 +160,8 @@ export default {
         //   filename: '',
         //   url: ''
         // }
-      ]
+      ],
+      pending: false
     }
   },
   directives: {
@@ -191,14 +193,30 @@ export default {
   methods: {
     async getThumbURL() {},
     async getCategories() {
-      this.categories = await this.$getDocs('category')
-      // console.log(this.categories)
+      const docs = await this.$getDocs('category')
+      docs.forEach((doc) => {
+        this.categories.push({ ...doc, selected: false })
+      })
+
+      console.log(this.categories)
     },
     openCategories() {
       this.$showDrawer('.category-drawer', '.createpost-wrap')
     },
-    selectCategory(name) {
-      this.post.category = name
+    selectCategory(id) {
+      // const selectedCategory = this.categories.filter((cat) => {
+      //   console.log(cat.id)
+      //   return cat.id === id
+      // })[0]
+
+      this.categories.forEach((cat) => {
+        if (cat.id === id) {
+          cat.selected = true
+          this.post.category = cat.name
+        } else {
+          cat.selected = false
+        }
+      })
       this.$closeDrawer('.category-drawer', '.createpost-wrap')
     },
     closeCategories() {
@@ -286,6 +304,8 @@ export default {
         return
       }
 
+      this.pending = true
+
       const postDoc = {
         ...this.post,
         thumb_path: this.thumbnail.path,
@@ -322,6 +342,7 @@ export default {
         )
       }
 
+      this.pending = false
       this.$emit('toastShow', '게시글이 작성되었습니다.')
       this.$router.push({ path: '/home' })
     }
@@ -329,13 +350,13 @@ export default {
 }
 </script>
 <style scoped>
+.loader {
+  font-size: 4px;
+  left: -100%;
+  top: 61%;
+}
 .header__left {
-  padding-left: 0 4px;
-  height: 100%;
-  width: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 26px;
   cursor: pointer;
 }
 .icon-cross {
@@ -344,6 +365,10 @@ export default {
 
 .header .header__buttons {
   width: auto;
+}
+.header .btn-submit {
+  height: 100%;
+  /* background-color: antiquewhite; */
 }
 
 input {

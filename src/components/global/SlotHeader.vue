@@ -39,10 +39,17 @@ export default {
 .header button {
   background-color: transparent;
 }
-.header__left,
 .header__center {
   font-size: 20px;
   font-weight: bold;
+}
+.header__left,
+.header__center,
+.header__buttons {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .header__buttons {
   min-width: 20px;

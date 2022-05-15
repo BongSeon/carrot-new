@@ -1,6 +1,6 @@
 <template>
   <div v-show="show" class="post-detail">
-    <i class="btn-back fas fa-arrow-left" @click="close"></i>
+    <i class="btn-back fas fa-arrow-left text-white" @click="close"></i>
     <i v-if="isMyPost" class="btn-delete fas fa-trash-alt" @click="trash"></i>
 
     <!-- carousel  -->
